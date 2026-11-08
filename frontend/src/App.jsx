@@ -8,7 +8,7 @@ function App() {
     <BrowserRouter>
       <header className="site-header">
         <div className="container site-header-content">
-          <strong className="brand">LanchaYa</strong>
+          <strong className="brand">LANCHAYA</strong>
           <nav aria-label="Navegación principal">
             <NavLink to="/" end>Consultar salidas</NavLink>
             <NavLink to="/admin">Administración</NavLink>

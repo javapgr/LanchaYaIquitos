@@ -63,8 +63,8 @@ function AdminPage() {
   }
 
   return (
-    <main className="container">
-      <header className="hero">
+    <main className="container admin-page">
+      <header className="hero admin-hero">
         <p className="eyebrow">Panel de administración</p>
         <h1>Gestionar salidas</h1>
         <p>Registra, edita o elimina las salidas que verán los clientes.</p>
@@ -92,7 +92,7 @@ function AdminPage() {
         />
         {cargando && <p className="status">Cargando salidas...</p>}
         {!cargando && error && <p className="status error-message">{error}</p>}
-        {!cargando && !error && <div className="cards">{salidas.map((salida) => <SalidaCard key={salida.id} salida={salida} onEditar={(seleccionada) => {
+        {!cargando && !error && <div className="cards">{salidas.map((salida) => <SalidaCard admin key={salida.id} salida={salida} onEditar={(seleccionada) => {
           setSalidaEditando(seleccionada);
           setFormularioAbierto(true);
         }} onEliminar={eliminar} />)}</div>}

@@ -25,6 +25,10 @@ function ClientPage() {
   useEffect(() => {
     obtenerDestinos().then(setDestinos).catch((requestError) => setError(requestError.message));
   }, []);
+  useEffect(() => {
+    document.body.classList.add('client-background');
+    return () => document.body.classList.remove('client-background');
+  }, []);
   useEffect(() => { cargarSalidas(); }, [cargarSalidas]);
 
   function cambiarFiltro(event) {
@@ -32,8 +36,8 @@ function ClientPage() {
   }
 
   return (
-    <main className="container">
-      <header className="hero">
+    <main className="container client-page">
+      <header className="hero client-hero">
         <p className="eyebrow">Transporte fluvial de Iquitos</p>
         <h1>Encuentra tu próxima salida</h1>
         <p>Consulta horarios, destinos y precios de las empresas fluviales.</p>

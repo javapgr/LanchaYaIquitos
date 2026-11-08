@@ -1,11 +1,11 @@
 import React from 'react';
 
-function SalidaCard({ salida, onEditar, onEliminar }) {
+function SalidaCard({ salida, onEditar, onEliminar, admin = false }) {
   const fecha = new Date(salida.fechaHora);
   const cuposClase = salida.cupos > 20 ? 'disponible' : salida.cupos > 5 ? 'limitado' : 'agotandose';
 
   return (
-    <article className="card">
+    <article className={`card${admin ? ' admin-card' : ''}`}>
       <div className="card-header">
         <span className={`tag tag-${salida.tipo}`}>{salida.tipo}</span>
         <span className={`cupos ${cuposClase}`}>{salida.cupos} cupos</span>

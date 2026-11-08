@@ -18,7 +18,7 @@ function validarSalida(body, { esNuevo = false } = {}) {
     return 'El cuerpo de la solicitud debe ser un objeto';
   }
 
-  for (const campo of ['empresa', 'destino', 'puerto', 'fechaHora']) {
+  for (const campo of ['empresa', 'embarcacion', 'destino', 'puerto', 'fechaHora']) {
     if (typeof body[campo] !== 'string' || !body[campo].trim()) {
       return `El campo ${campo} es obligatorio`;
     }
@@ -109,7 +109,8 @@ async function crearSalida(req, res, next) {
 
     const salidas = await leerSalidas();
     const id = salidas.reduce((maximo, salida) => Math.max(maximo, salida.id), 0) + 1;
-    const salida = { id, ...req.body };
+    const { id: _ignorado, ...datos } = req.body;
+    const salida = { ...datos, id };
     salidas.push(salida);
     await guardarSalidas(salidas);
 
@@ -133,7 +134,8 @@ async function actualizarSalida(req, res, next) {
       return res.status(404).json({ error: 'Salida no encontrada' });
     }
 
-    const salida = { id, ...req.body };
+    const { id: _ignorado, ...datos } = req.body;
+    const salida = { ...datos, id };
     salidas[indice] = salida;
     await guardarSalidas(salidas);
     return res.json(salida);

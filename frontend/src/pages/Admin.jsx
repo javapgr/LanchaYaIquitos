@@ -1,12 +1,19 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Filtros from '../components/Filtros';
-import SalidaCard from '../components/SalidaCard';
 import SalidaForm from '../components/SalidaForm';
 import {
   actualizarSalida, crearSalida, eliminarSalida, obtenerDestinos, obtenerSalidas,
 } from '../services/api';
 
-function AdminPage() {
+function formatearFecha(fechaHora) {
+  const fecha = new Date(fechaHora);
+  return `${fecha.toLocaleDateString('es-PE')} · ${fecha.toLocaleTimeString('es-PE', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })}`;
+}
+
+function Admin() {
   const [salidas, setSalidas] = useState([]);
   const [destinos, setDestinos] = useState([]);
   const [filtros, setFiltros] = useState({ destino: '', fecha: '', tipo: '' });
@@ -41,6 +48,11 @@ function AdminPage() {
     setFiltros({ ...filtros, [event.target.name]: event.target.value });
   }
 
+  function editar(salida) {
+    setSalidaEditando(salida);
+    setFormularioAbierto(true);
+  }
+
   async function guardar(salida) {
     try {
       if (salidaEditando) await actualizarSalida(salidaEditando.id, salida);
@@ -73,9 +85,13 @@ function AdminPage() {
         Registrar salida
       </button>
       {formularioAbierto && (
-        <div className="modal-backdrop" role="presentation" onMouseDown={(event) => {
-          if (event.target === event.currentTarget) cerrarFormulario();
-        }}>
+        <div
+          className="modal-backdrop"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) cerrarFormulario();
+          }}
+        >
           <div className="modal">
             <button type="button" className="close-button" aria-label="Cerrar formulario" onClick={cerrarFormulario}>×</button>
             <SalidaForm salida={salidaEditando} onGuardar={guardar} onCancelar={cerrarFormulario} />
@@ -92,13 +108,49 @@ function AdminPage() {
         />
         {cargando && <p className="status">Cargando salidas...</p>}
         {!cargando && error && <p className="status error-message">{error}</p>}
-        {!cargando && !error && <div className="cards">{salidas.map((salida) => <SalidaCard admin key={salida.id} salida={salida} onEditar={(seleccionada) => {
-          setSalidaEditando(seleccionada);
-          setFormularioAbierto(true);
-        }} onEliminar={eliminar} />)}</div>}
+        {!cargando && !error && salidas.length === 0 && (
+          <p className="status">No hay salidas para los filtros seleccionados.</p>
+        )}
+        {!cargando && !error && salidas.length > 0 && (
+          <div className="table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Destino</th>
+                  <th>Empresa</th>
+                  <th>Tipo</th>
+                  <th>Fecha</th>
+                  <th>Puerto</th>
+                  <th>Precio</th>
+                  <th>Cupos</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {salidas.map((salida) => (
+                  <tr key={salida.id}>
+                    <td data-label="Destino">{salida.destino}</td>
+                    <td data-label="Empresa">{salida.empresa}</td>
+                    <td data-label="Tipo">{salida.tipo}</td>
+                    <td data-label="Fecha">{formatearFecha(salida.fechaHora)}</td>
+                    <td data-label="Puerto">{salida.puerto}</td>
+                    <td data-label="Precio">S/ {Number(salida.precio).toFixed(2)}</td>
+                    <td data-label="Cupos">{salida.cupos}</td>
+                    <td data-label="Acciones">
+                      <div className="table-actions">
+                        <button type="button" className="button secondary" onClick={() => editar(salida)}>Editar</button>
+                        <button type="button" className="button danger" onClick={() => eliminar(salida.id)}>Eliminar</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
     </main>
   );
 }
 
-export default AdminPage;
+export default Admin;

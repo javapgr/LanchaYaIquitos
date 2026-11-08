@@ -1,10 +1,15 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 async function request(path, options = {}) {
-  const response = await fetch(`${API_URL}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options,
-  });
+  let response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      headers: { 'Content-Type': 'application/json' },
+      ...options,
+    });
+  } catch {
+    throw new Error('No se pudo conectar con el servidor');
+  }
 
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));

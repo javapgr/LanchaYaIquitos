@@ -3,7 +3,7 @@ import Filtros from '../components/Filtros';
 import SalidaCard from '../components/SalidaCard';
 import { obtenerDestinos, obtenerSalidas } from '../services/api';
 
-function ClientPage() {
+function Home() {
   const [salidas, setSalidas] = useState([]);
   const [destinos, setDestinos] = useState([]);
   const [filtros, setFiltros] = useState({ destino: '', fecha: '', tipo: '' });
@@ -53,10 +53,12 @@ function ClientPage() {
         {cargando && <p className="status">Cargando salidas...</p>}
         {!cargando && error && <p className="status error-message">{error}</p>}
         {!cargando && !error && salidas.length === 0 && <p className="status">No hay salidas para los filtros seleccionados.</p>}
-        {!cargando && !error && <div className="cards">{salidas.map((salida) => <SalidaCard key={salida.id} salida={salida} />)}</div>}
+        {!cargando && !error && salidas.length > 0 && (
+          <div className="cards">{salidas.map((salida) => <SalidaCard key={salida.id} salida={salida} />)}</div>
+        )}
       </section>
     </main>
   );
 }
 
-export default ClientPage;
+export default Home;

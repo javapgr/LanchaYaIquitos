@@ -26,7 +26,7 @@ function SalidaForm({ salida, onGuardar, onCancelar }) {
       precio: Number(formulario.precio),
       cupos: Number(formulario.cupos),
     };
-    for (const campo of ['empresa', 'destino', 'puerto', 'fechaHora']) {
+    for (const campo of ['empresa', 'embarcacion', 'destino', 'puerto', 'fechaHora']) {
       if (!String(datos[campo]).trim()) return setError(`El campo ${campo} es obligatorio`);
     }
     if (!['lancha', 'rapido', 'deslizador'].includes(datos.tipo)) return setError('Selecciona un tipo válido');

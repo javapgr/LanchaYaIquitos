@@ -5,4 +5,4 @@ dist/
 !.env.example
 npm-debug.log*
 .github/copilot-instructions.md
-SPEC.md
+.cursor/

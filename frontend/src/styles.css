@@ -50,7 +50,12 @@ input:focus, select:focus { outline: none; }
 .card { position: relative; overflow: hidden; background: linear-gradient(rgba(255, 255, 255, .88), rgba(255, 255, 255, .92)), url('/images/delfin-rosado.webp') center / cover; border-radius: 12px; padding: 18px; box-shadow: 0 2px 10px #17324d12; }
 .admin-card { background: #fff; }
 .card-header { display: flex; justify-content: space-between; align-items: center; }.card h3 { margin: 18px 0 5px; font-size: 1.4rem; }.empresa { color: #666; margin-top: 0; }
-.tag, .cupos { background: #e5e5e5; color: #222; border-radius: 20px; padding: 5px 9px; font-size: .75rem; font-weight: bold; }
+.tag { background: #e5e5e5; color: #222; border-radius: 20px; padding: 5px 9px; font-size: .75rem; font-weight: bold; }
+.cupos { border-radius: 20px; padding: 5px 9px; font-size: .75rem; font-weight: bold; }
+.cupos-verde { background: #dcfce7; color: #166534; }
+.cupos-amarillo { background: #fef9c3; color: #854d0e; }
+.cupos-rojo { background: #fee2e2; color: #991b1b; }
+.filter-search { grid-column: 1 / -1; }
 .details { border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; padding: 10px 0; }.details div { display: flex; justify-content: space-between; gap: 10px; margin: 6px 0; }.details dt { color: #666; }.details dd { margin: 0; text-align: right; }.price { display: block; font-size: 1.3rem; margin-top: 14px; }.status { text-align: center; padding: 30px; }.error-message { color: #333; }
 .table-wrap { overflow-x: auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 10px #17324d12; }
 .admin-table { width: 100%; border-collapse: collapse; font-size: .92rem; }

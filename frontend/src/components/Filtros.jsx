@@ -3,11 +3,23 @@ import React from 'react';
 function Filtros({ filtros, destinos, onChange, onLimpiar }) {
   return (
     <section className="filters">
+      <label className="filter-search">
+        Buscar
+        <input
+          type="search"
+          name="q"
+          value={filtros.q}
+          onChange={onChange}
+          placeholder="Empresa o embarcación"
+        />
+      </label>
       <label>
         Destino
         <select name="destino" value={filtros.destino} onChange={onChange}>
           <option value="">Todos los destinos</option>
-          {destinos.map((destino) => <option key={destino} value={destino}>{destino}</option>)}
+          {destinos.map((destino) => (
+            <option key={destino} value={destino}>{destino}</option>
+          ))}
         </select>
       </label>
       <label>
@@ -23,7 +35,9 @@ function Filtros({ filtros, destinos, onChange, onLimpiar }) {
           <option value="deslizador">Deslizador</option>
         </select>
       </label>
-      <button type="button" className="button secondary clear-button" onClick={onLimpiar}>Limpiar filtros</button>
+      <button type="button" className="button secondary clear-button" onClick={onLimpiar}>
+        Limpiar filtros
+      </button>
     </section>
   );
 }

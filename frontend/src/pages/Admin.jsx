@@ -4,6 +4,7 @@ import SalidaForm from '../components/SalidaForm';
 import {
   actualizarSalida, crearSalida, eliminarSalida, obtenerDestinos, obtenerSalidas,
 } from '../services/api';
+import { claseCupos, etiquetaCupos } from '../utils/cupos';
 
 function formatearFecha(fechaHora) {
   const fecha = new Date(fechaHora);
@@ -16,7 +17,7 @@ function formatearFecha(fechaHora) {
 function Admin() {
   const [salidas, setSalidas] = useState([]);
   const [destinos, setDestinos] = useState([]);
-  const [filtros, setFiltros] = useState({ destino: '', fecha: '', tipo: '' });
+  const [filtros, setFiltros] = useState({ q: '', destino: '', fecha: '', tipo: '' });
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
   const [salidaEditando, setSalidaEditando] = useState(null);
@@ -104,7 +105,7 @@ function Admin() {
           filtros={filtros}
           destinos={destinos}
           onChange={cambiarFiltro}
-          onLimpiar={() => setFiltros({ destino: '', fecha: '', tipo: '' })}
+          onLimpiar={() => setFiltros({ q: '', destino: '', fecha: '', tipo: '' })}
         />
         {cargando && <p className="status">Cargando salidas...</p>}
         {!cargando && error && <p className="status error-message">{error}</p>}
@@ -135,7 +136,11 @@ function Admin() {
                     <td data-label="Fecha">{formatearFecha(salida.fechaHora)}</td>
                     <td data-label="Puerto">{salida.puerto}</td>
                     <td data-label="Precio">S/ {Number(salida.precio).toFixed(2)}</td>
-                    <td data-label="Cupos">{salida.cupos}</td>
+                    <td data-label="Cupos">
+                      <span className={`cupos ${claseCupos(salida.cupos)}`}>
+                        {salida.cupos} · {etiquetaCupos(salida.cupos)}
+                      </span>
+                    </td>
                     <td data-label="Acciones">
                       <div className="table-actions">
                         <button type="button" className="button secondary" onClick={() => editar(salida)}>Editar</button>

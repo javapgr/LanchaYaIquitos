@@ -52,7 +52,7 @@ Datos iniciales: al menos 12 registros en `salidas.json`.
 - `id` autogenerado (`max id + 1`). Nunca confiar en el `id` del body.
 - Validar POST y PUT con `validarSalida(body, { esNuevo })`.
 - En altas (`esNuevo`), `fechaHora` no puede estar en el pasado.
-- Filtros `?destino=&fecha=&tipo=` combinables; destino sin distinguir mayúsculas; `fecha` = `YYYY-MM-DD` contra `fechaHora`.
+- Filtros `?destino=&fecha=&tipo=&q=` combinables; destino sin distinguir mayúsculas; `fecha` = `YYYY-MM-DD` contra `fechaHora`; `q` busca texto en `empresa` o `embarcacion` (sin distinguir mayúsculas).
 - Listado ordenado por `fechaHora` ascendente.
 
 ### Endpoints
@@ -75,6 +75,8 @@ Datos iniciales: al menos 12 registros en `salidas.json`.
 - Validar el formulario con las mismas reglas del backend.
 - Eliminar siempre con `window.confirm`.
 - Mobile-first: legible en celular, estilo simple y limpio.
+- Indicador de cupos con color: verde (> 20), amarillo (6–20), rojo (0–5).
+- Búsqueda por texto de empresa o embarcación (`q`) en Home y Admin.
 
 ## Criterio de hecho
 

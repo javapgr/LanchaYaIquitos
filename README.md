@@ -35,7 +35,7 @@ Scripts:
 
 | Método | Path | Descripción |
 |--------|------|-------------|
-| GET | `/api/salidas` | Listar (filtros: `destino`, `fecha`, `tipo`) |
+| GET | `/api/salidas` | Listar (filtros: `destino`, `fecha`, `tipo`, `q`) |
 | GET | `/api/salidas/:id` | Obtener una salida |
 | POST | `/api/salidas` | Crear |
 | PUT | `/api/salidas/:id` | Actualizar |
@@ -64,6 +64,11 @@ Scripts:
 - `npm run dev` — servidor de desarrollo Vite
 - `npm run build` — build de producción
 - `npm run preview` — previsualizar el build
+
+## Extras implementados
+
+- Indicador de cupos con color: verde (> 20), amarillo (6–20), rojo (0–5).
+- Búsqueda por texto de empresa o embarcación (`?q=`).
 
 ## Fuera de alcance
 

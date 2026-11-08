@@ -62,7 +62,7 @@ function obtenerId(parametro) {
 
 async function listarSalidas(req, res, next) {
   try {
-    const { destino, fecha, tipo } = req.query;
+    const { destino, fecha, tipo, q } = req.query;
     let salidas = await leerSalidas();
 
     if (destino) {
@@ -75,6 +75,14 @@ async function listarSalidas(req, res, next) {
     }
     if (tipo) {
       salidas = salidas.filter((salida) => salida.tipo === tipo);
+    }
+    if (q) {
+      const texto = String(q).trim().toLowerCase();
+      salidas = salidas.filter(
+        (salida) =>
+          salida.empresa.toLowerCase().includes(texto)
+          || salida.embarcacion.toLowerCase().includes(texto),
+      );
     }
 
     salidas.sort((a, b) => new Date(a.fechaHora) - new Date(b.fechaHora));

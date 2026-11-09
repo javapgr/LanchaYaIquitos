@@ -6,9 +6,10 @@ Consulta y administración de salidas fluviales desde Iquitos: destinos, horario
 
 ```
 lanchaya/
-├── backend/          # API Express (puerto 3000)
+├── backend/          # API Express + SQLite (puerto 3000)
 ├── frontend/         # React + Vite
 ├── SPEC.md           # Fuente de verdad
+├── render.yaml       # Deploy backend (Render)
 └── README.md
 ```
 
@@ -26,9 +27,15 @@ npm run dev
 
 API en `http://localhost:3000`.
 
+Variables opcionales (ver `backend/.env.example`):
+
+- `PORT`
+- `DATABASE_PATH` — ruta del archivo SQLite (por defecto `src/data/salidas.db`)
+- `CORS_ORIGIN` — orígenes permitidos separados por coma
+
 Scripts:
 
-- `npm start` — producción (`node src/index.js`)
+- `npm start` — producción
 - `npm run dev` — desarrollo con nodemon
 
 ### Endpoints
@@ -41,8 +48,9 @@ Scripts:
 | PUT | `/api/salidas/:id` | Actualizar |
 | DELETE | `/api/salidas/:id` | Eliminar |
 | GET | `/api/destinos` | Destinos únicos |
+| GET | `/api/health` | Salud |
 
-Datos: `backend/src/data/salidas.json` (12 registros iniciales).
+Persistencia: SQLite (`src/data/salidas.db`). Si la base está vacía, se siembra desde `src/data/salidas.json` (12 registros).
 
 ## Frontend
 
@@ -52,7 +60,7 @@ npm install
 npm run dev
 ```
 
-Por defecto consume `http://localhost:3000/api`. Puedes cambiarlo con `VITE_API_URL`.
+Por defecto consume `http://localhost:3000/api`. Cámbialo con `VITE_API_URL` (ver `frontend/.env.example`).
 
 Rutas:
 
@@ -61,15 +69,36 @@ Rutas:
 
 Scripts:
 
-- `npm run dev` — servidor de desarrollo Vite
-- `npm run build` — build de producción
-- `npm run preview` — previsualizar el build
+- `npm run dev`
+- `npm run build`
+- `npm run preview`
 
 ## Extras implementados
 
-- Indicador de cupos con color: verde (> 20), amarillo (6–20), rojo (0–5).
-- Búsqueda por texto de empresa o embarcación (`?q=`).
+- Indicador de cupos con color: verde (> 20), amarillo (6–20), rojo (0–5)
+- Búsqueda por texto de empresa o embarcación (`?q=`)
+- Persistencia en SQLite (`better-sqlite3`)
+- Despliegue: Render (API) + Vercel (frontend)
+
+## Despliegue
+
+### Backend (Render)
+
+1. Conecta el repo en [Render](https://render.com).
+2. Usa `render.yaml` o crea un Web Service con:
+   - Root Directory: `backend`
+   - Build: `npm install`
+   - Start: `npm start`
+3. Variable `CORS_ORIGIN` = URL del frontend en Vercel (sin barra final).
+
+### Frontend (Vercel)
+
+1. Importa el repo en [Vercel](https://vercel.com).
+2. Root Directory: `frontend`
+3. Build: `npm run build`
+4. Output: `dist`
+5. Variable `VITE_API_URL` = `https://TU-API.onrender.com/api`
 
 ## Fuera de alcance
 
-Login, pagos, ventas y despliegue.
+Login, pagos y ventas.

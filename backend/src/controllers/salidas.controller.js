@@ -1,17 +1,6 @@
-const fs = require('node:fs/promises');
-const path = require('node:path');
+const db = require('../db');
 
-const archivoSalidas = path.join(__dirname, '..', 'data', 'salidas.json');
 const tiposPermitidos = ['lancha', 'rapido', 'deslizador'];
-
-async function leerSalidas() {
-  const contenido = await fs.readFile(archivoSalidas, 'utf8');
-  return JSON.parse(contenido);
-}
-
-async function guardarSalidas(salidas) {
-  await fs.writeFile(archivoSalidas, `${JSON.stringify(salidas, null, 2)}\n`, 'utf8');
-}
 
 function validarSalida(body, { esNuevo = false } = {}) {
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
@@ -60,43 +49,66 @@ function obtenerId(parametro) {
   return Number.isInteger(id) && id > 0 ? id : null;
 }
 
-async function listarSalidas(req, res, next) {
+function datosSalida(body) {
+  const { id: _ignorado, ...datos } = body;
+  return {
+    empresa: datos.empresa.trim(),
+    embarcacion: datos.embarcacion.trim(),
+    tipo: datos.tipo,
+    destino: datos.destino.trim(),
+    puerto: datos.puerto.trim(),
+    fechaHora: datos.fechaHora.trim(),
+    duracionHoras: datos.duracionHoras,
+    precio: datos.precio,
+    cupos: datos.cupos,
+  };
+}
+
+function listarSalidas(req, res, next) {
   try {
     const { destino, fecha, tipo, q } = req.query;
-    let salidas = await leerSalidas();
+    const condiciones = [];
+    const valores = {};
 
     if (destino) {
-      salidas = salidas.filter(
-        (salida) => salida.destino.toLowerCase() === destino.toLowerCase(),
-      );
+      condiciones.push('LOWER(destino) = LOWER(@destino)');
+      valores.destino = destino;
     }
     if (fecha) {
-      salidas = salidas.filter((salida) => salida.fechaHora.startsWith(fecha));
+      condiciones.push('fechaHora LIKE @fecha');
+      valores.fecha = `${fecha}%`;
     }
     if (tipo) {
-      salidas = salidas.filter((salida) => salida.tipo === tipo);
+      condiciones.push('tipo = @tipo');
+      valores.tipo = tipo;
     }
     if (q) {
-      const texto = String(q).trim().toLowerCase();
-      salidas = salidas.filter(
-        (salida) =>
-          salida.empresa.toLowerCase().includes(texto)
-          || salida.embarcacion.toLowerCase().includes(texto),
-      );
+      condiciones.push('(LOWER(empresa) LIKE @q OR LOWER(embarcacion) LIKE @q)');
+      valores.q = `%${String(q).trim().toLowerCase()}%`;
     }
 
-    salidas.sort((a, b) => new Date(a.fechaHora) - new Date(b.fechaHora));
-    res.json(salidas);
+    const where = condiciones.length ? `WHERE ${condiciones.join(' AND ')}` : '';
+    const salidas = db.prepare(`
+      SELECT id, empresa, embarcacion, tipo, destino, puerto, fechaHora, duracionHoras, precio, cupos
+      FROM salidas
+      ${where}
+      ORDER BY fechaHora ASC
+    `).all(valores);
+
+    return res.json(salidas);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 }
 
-async function obtenerSalida(req, res, next) {
+function obtenerSalida(req, res, next) {
   try {
     const id = obtenerId(req.params.id);
-    const salidas = await leerSalidas();
-    const salida = salidas.find((item) => item.id === id);
+    const salida = db.prepare(`
+      SELECT id, empresa, embarcacion, tipo, destino, puerto, fechaHora, duracionHoras, precio, cupos
+      FROM salidas
+      WHERE id = ?
+    `).get(id);
 
     if (!salida) {
       return res.status(404).json({ error: 'Salida no encontrada' });
@@ -108,19 +120,27 @@ async function obtenerSalida(req, res, next) {
   }
 }
 
-async function crearSalida(req, res, next) {
+function crearSalida(req, res, next) {
   try {
     const errorValidacion = validarSalida(req.body, { esNuevo: true });
     if (errorValidacion) {
       return res.status(400).json({ error: errorValidacion });
     }
 
-    const salidas = await leerSalidas();
-    const id = salidas.reduce((maximo, salida) => Math.max(maximo, salida.id), 0) + 1;
-    const { id: _ignorado, ...datos } = req.body;
-    const salida = { ...datos, id };
-    salidas.push(salida);
-    await guardarSalidas(salidas);
+    const datos = datosSalida(req.body);
+    const resultado = db.prepare(`
+      INSERT INTO salidas (
+        empresa, embarcacion, tipo, destino, puerto, fechaHora, duracionHoras, precio, cupos
+      ) VALUES (
+        @empresa, @embarcacion, @tipo, @destino, @puerto, @fechaHora, @duracionHoras, @precio, @cupos
+      )
+    `).run(datos);
+
+    const salida = db.prepare(`
+      SELECT id, empresa, embarcacion, tipo, destino, puerto, fechaHora, duracionHoras, precio, cupos
+      FROM salidas
+      WHERE id = ?
+    `).get(resultado.lastInsertRowid);
 
     return res.status(201).json(salida);
   } catch (error) {
@@ -128,7 +148,7 @@ async function crearSalida(req, res, next) {
   }
 }
 
-async function actualizarSalida(req, res, next) {
+function actualizarSalida(req, res, next) {
   try {
     const id = obtenerId(req.params.id);
     const errorValidacion = validarSalida(req.body);
@@ -136,44 +156,61 @@ async function actualizarSalida(req, res, next) {
       return res.status(400).json({ error: errorValidacion });
     }
 
-    const salidas = await leerSalidas();
-    const indice = salidas.findIndex((salida) => salida.id === id);
-    if (indice === -1) {
+    const existente = db.prepare('SELECT id FROM salidas WHERE id = ?').get(id);
+    if (!existente) {
       return res.status(404).json({ error: 'Salida no encontrada' });
     }
 
-    const { id: _ignorado, ...datos } = req.body;
-    const salida = { ...datos, id };
-    salidas[indice] = salida;
-    await guardarSalidas(salidas);
+    const datos = { ...datosSalida(req.body), id };
+    db.prepare(`
+      UPDATE salidas SET
+        empresa = @empresa,
+        embarcacion = @embarcacion,
+        tipo = @tipo,
+        destino = @destino,
+        puerto = @puerto,
+        fechaHora = @fechaHora,
+        duracionHoras = @duracionHoras,
+        precio = @precio,
+        cupos = @cupos
+      WHERE id = @id
+    `).run(datos);
+
+    const salida = db.prepare(`
+      SELECT id, empresa, embarcacion, tipo, destino, puerto, fechaHora, duracionHoras, precio, cupos
+      FROM salidas
+      WHERE id = ?
+    `).get(id);
+
     return res.json(salida);
   } catch (error) {
     return next(error);
   }
 }
 
-async function eliminarSalida(req, res, next) {
+function eliminarSalida(req, res, next) {
   try {
     const id = obtenerId(req.params.id);
-    const salidas = await leerSalidas();
-    const salidasRestantes = salidas.filter((salida) => salida.id !== id);
+    const resultado = db.prepare('DELETE FROM salidas WHERE id = ?').run(id);
 
-    if (salidasRestantes.length === salidas.length) {
+    if (resultado.changes === 0) {
       return res.status(404).json({ error: 'Salida no encontrada' });
     }
 
-    await guardarSalidas(salidasRestantes);
     return res.status(204).send();
   } catch (error) {
     return next(error);
   }
 }
 
-async function listarDestinos(req, res, next) {
+function listarDestinos(req, res, next) {
   try {
-    const salidas = await leerSalidas();
-    const destinos = [...new Set(salidas.map((salida) => salida.destino))].sort();
-    return res.json(destinos);
+    const filas = db.prepare(`
+      SELECT DISTINCT destino
+      FROM salidas
+      ORDER BY destino ASC
+    `).all();
+    return res.json(filas.map((fila) => fila.destino));
   } catch (error) {
     return next(error);
   }

@@ -1,28 +1,50 @@
-# LanchaYa Iquitos
+# LANCHA YA! — Iquitos
 
-Consulta y administración de salidas fluviales desde Iquitos: destinos, horarios, precios y cupos.
+**LANCHA YA!** concentra las salidas fluviales en un solo lugar: destino, hora, precio, puerto y cupos.
 
-## Demo en vivo
+Los pasajeros consultan y filtran. El administrador registra, edita y elimina salidas.
 
-- Frontend: https://lanchaya.vercel.app
-- API: https://lanchayaiquitos.onrender.com/api/health
+**Integrantes:**
+Dev-Danilo Said Bardales Panduro
 
-## Estructura
+---
 
-```
-lanchaya/
-├── backend/          # API Express + SQLite (puerto 3000)
-├── frontend/         # React + Vite
-├── SPEC.md           # Fuente de verdad
-├── render.yaml       # Deploy backend (Render)
-└── README.md
-```
+## Demo
 
-## Requisitos
+| | URL |
+|---|---|
+| App | https://lanchaya.vercel.app |
+| API | https://lanchayaiquitos.onrender.com/api/salidas |
+| Health | https://lanchayaiquitos.onrender.com/api/health |
 
-- Node.js 22 o superior
+---
 
-## Backend
+## Stack
+
+| Capa | Tecnología |
+|------|------------|
+| Frontend | React 18 + Vite + React Router |
+| Backend | Node.js 22 + Express 4 |
+| Base de datos | SQLite (`node:sqlite`) |
+| Deploy | Vercel (frontend) + Render (API) |
+
+---
+
+## Qué puedes hacer
+
+- Ver salidas ordenadas por fecha
+- Filtrar por destino, fecha y tipo (`lancha`, `rapido`, `deslizador`)
+- Buscar por empresa o embarcación
+- Ver cupos con color (verde / amarillo / rojo)
+- Admin: crear, editar y eliminar salidas
+
+---
+
+## Cómo correrlo en local
+
+Necesitas **Node.js 22+**.
+
+### 1. Backend
 
 ```bash
 cd backend
@@ -30,34 +52,9 @@ npm install
 npm run dev
 ```
 
-API en `http://localhost:3000`.
+API en `http://localhost:3000`
 
-Variables opcionales (ver `backend/.env.example`):
-
-- `PORT`
-- `DATABASE_PATH` — ruta del archivo SQLite (por defecto `src/data/salidas.db`)
-- `CORS_ORIGIN` — orígenes permitidos separados por coma
-
-Scripts:
-
-- `npm start` — producción
-- `npm run dev` — desarrollo con nodemon
-
-### Endpoints
-
-| Método | Path | Descripción |
-|--------|------|-------------|
-| GET | `/api/salidas` | Listar (filtros: `destino`, `fecha`, `tipo`, `q`) |
-| GET | `/api/salidas/:id` | Obtener una salida |
-| POST | `/api/salidas` | Crear |
-| PUT | `/api/salidas/:id` | Actualizar |
-| DELETE | `/api/salidas/:id` | Eliminar |
-| GET | `/api/destinos` | Destinos únicos |
-| GET | `/api/health` | Salud |
-
-Persistencia: SQLite (`src/data/salidas.db`). Si la base está vacía, se siembra desde `src/data/salidas.json` (12 registros).
-
-## Frontend
+### 2. Frontend
 
 ```bash
 cd frontend
@@ -65,47 +62,45 @@ npm install
 npm run dev
 ```
 
-Por defecto consume `http://localhost:3000/api`. Cámbialo con `VITE_API_URL` (ver `frontend/.env.example`).
+App en `http://localhost:5173` (consume `http://localhost:3000/api` por defecto).
 
-Rutas:
+---
 
-- `/` — listado público con filtros (solo lectura)
-- `/admin` — registrar, editar y eliminar salidas
+## Estructura
 
-Scripts:
+```
+LanchaYaIquitos/
+├── backend/     # API REST + SQLite
+├── frontend/    # React (Home + Admin)
+├── SPEC.md
+├── render.yaml
+└── README.md
+```
 
-- `npm run dev`
-- `npm run build`
-- `npm run preview`
+Rutas web:
 
-## Extras implementados
+- `/` — consulta pública
+- `/admin` — gestión de salidas
 
-- Indicador de cupos con color: verde (> 20), amarillo (6–20), rojo (0–5)
-- Búsqueda por texto de empresa o embarcación (`?q=`)
-- Persistencia en SQLite (`node:sqlite`, Node 22+)
-- Despliegue: Render (API) + Vercel (frontend)
+---
 
-## Despliegue
+## API
 
-### Backend (Render)
+| Método | Ruta | Qué hace |
+|--------|------|----------|
+| GET | `/api/salidas` | Lista (filtros: `destino`, `fecha`, `tipo`, `q`) |
+| GET | `/api/salidas/:id` | Detalle |
+| POST | `/api/salidas` | Crear |
+| PUT | `/api/salidas/:id` | Actualizar |
+| DELETE | `/api/salidas/:id` | Eliminar |
+| GET | `/api/destinos` | Destinos únicos |
+| GET | `/api/health` | Estado del servidor |
 
-1. Conecta el repo en [Render](https://render.com).
-2. Usa `render.yaml` o crea un Web Service con:
-   - Root Directory: `backend`
-   - Build: `npm install`
-   - Start: `npm start`
-3. Variables:
-   - `NODE_VERSION` = `22` (obligatorio)
-   - `CORS_ORIGIN` = URL del frontend en Vercel (sin barra final)
+La base SQLite se crea sola y se siembra con 12 salidas desde `backend/src/data/salidas.json`.
 
-### Frontend (Vercel)
+---
 
-1. Importa el repo en [Vercel](https://vercel.com).
-2. Root Directory: `frontend`
-3. Build: `npm run build`
-4. Output: `dist`
-5. Variable `VITE_API_URL` = `https://TU-API.onrender.com/api`
+## Deploy
 
-## Fuera de alcance
-
-Login, pagos y ventas.
+- **Frontend (Vercel):** root `frontend` · env `VITE_API_URL=https://lanchayaiquitos.onrender.com/api`
+- **Backend (Render):** root `backend` · `npm install` / `npm start` · env `NODE_VERSION=22`

@@ -68,23 +68,24 @@ function listarSalidas(req, res, next) {
   try {
     const { destino, fecha, tipo, q } = req.query;
     const condiciones = [];
-    const valores = {};
+    const valores = [];
 
     if (destino) {
-      condiciones.push('LOWER(destino) = LOWER(@destino)');
-      valores.destino = destino;
+      condiciones.push('LOWER(destino) = LOWER(?)');
+      valores.push(destino);
     }
     if (fecha) {
-      condiciones.push('fechaHora LIKE @fecha');
-      valores.fecha = `${fecha}%`;
+      condiciones.push('fechaHora LIKE ?');
+      valores.push(`${fecha}%`);
     }
     if (tipo) {
-      condiciones.push('tipo = @tipo');
-      valores.tipo = tipo;
+      condiciones.push('tipo = ?');
+      valores.push(tipo);
     }
     if (q) {
-      condiciones.push('(LOWER(empresa) LIKE @q OR LOWER(embarcacion) LIKE @q)');
-      valores.q = `%${String(q).trim().toLowerCase()}%`;
+      condiciones.push('(LOWER(empresa) LIKE ? OR LOWER(embarcacion) LIKE ?)');
+      const texto = `%${String(q).trim().toLowerCase()}%`;
+      valores.push(texto, texto);
     }
 
     const where = condiciones.length ? `WHERE ${condiciones.join(' AND ')}` : '';
@@ -93,7 +94,7 @@ function listarSalidas(req, res, next) {
       FROM salidas
       ${where}
       ORDER BY fechaHora ASC
-    `).all(valores);
+    `).all(...valores);
 
     return res.json(salidas);
   } catch (error) {
@@ -131,10 +132,18 @@ function crearSalida(req, res, next) {
     const resultado = db.prepare(`
       INSERT INTO salidas (
         empresa, embarcacion, tipo, destino, puerto, fechaHora, duracionHoras, precio, cupos
-      ) VALUES (
-        @empresa, @embarcacion, @tipo, @destino, @puerto, @fechaHora, @duracionHoras, @precio, @cupos
-      )
-    `).run(datos);
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      datos.empresa,
+      datos.embarcacion,
+      datos.tipo,
+      datos.destino,
+      datos.puerto,
+      datos.fechaHora,
+      datos.duracionHoras,
+      datos.precio,
+      datos.cupos,
+    );
 
     const salida = db.prepare(`
       SELECT id, empresa, embarcacion, tipo, destino, puerto, fechaHora, duracionHoras, precio, cupos
@@ -161,20 +170,31 @@ function actualizarSalida(req, res, next) {
       return res.status(404).json({ error: 'Salida no encontrada' });
     }
 
-    const datos = { ...datosSalida(req.body), id };
+    const datos = datosSalida(req.body);
     db.prepare(`
       UPDATE salidas SET
-        empresa = @empresa,
-        embarcacion = @embarcacion,
-        tipo = @tipo,
-        destino = @destino,
-        puerto = @puerto,
-        fechaHora = @fechaHora,
-        duracionHoras = @duracionHoras,
-        precio = @precio,
-        cupos = @cupos
-      WHERE id = @id
-    `).run(datos);
+        empresa = ?,
+        embarcacion = ?,
+        tipo = ?,
+        destino = ?,
+        puerto = ?,
+        fechaHora = ?,
+        duracionHoras = ?,
+        precio = ?,
+        cupos = ?
+      WHERE id = ?
+    `).run(
+      datos.empresa,
+      datos.embarcacion,
+      datos.tipo,
+      datos.destino,
+      datos.puerto,
+      datos.fechaHora,
+      datos.duracionHoras,
+      datos.precio,
+      datos.cupos,
+      id,
+    );
 
     const salida = db.prepare(`
       SELECT id, empresa, embarcacion, tipo, destino, puerto, fechaHora, duracionHoras, precio, cupos

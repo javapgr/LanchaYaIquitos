@@ -1,14 +1,14 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const Database = require('better-sqlite3');
+const { DatabaseSync } = require('node:sqlite');
 
 const dataDir = path.join(__dirname, 'data');
 const dbPath = process.env.DATABASE_PATH || path.join(dataDir, 'salidas.db');
 const seedPath = path.join(dataDir, 'salidas.json');
 
-const db = new Database(dbPath);
+const db = new DatabaseSync(dbPath);
 
-db.pragma('journal_mode = WAL');
+db.exec('PRAGMA journal_mode = WAL');
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS salidas (
@@ -34,12 +34,25 @@ function seedSiVacio() {
     INSERT INTO salidas (
       id, empresa, embarcacion, tipo, destino, puerto, fechaHora, duracionHoras, precio, cupos
     ) VALUES (
-      @id, @empresa, @embarcacion, @tipo, @destino, @puerto, @fechaHora, @duracionHoras, @precio, @cupos
+      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
     )
   `);
 
   const cargar = db.transaction((filas) => {
-    for (const fila of filas) insertar.run(fila);
+    for (const fila of filas) {
+      insertar.run(
+        fila.id,
+        fila.empresa,
+        fila.embarcacion,
+        fila.tipo,
+        fila.destino,
+        fila.puerto,
+        fila.fechaHora,
+        fila.duracionHoras,
+        fila.precio,
+        fila.cupos,
+      );
+    }
   });
 
   cargar(semillas);

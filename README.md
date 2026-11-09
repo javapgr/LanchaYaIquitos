@@ -15,7 +15,7 @@ lanchaya/
 
 ## Requisitos
 
-- Node.js 20 o superior
+- Node.js 22 o superior
 
 ## Backend
 
@@ -77,7 +77,7 @@ Scripts:
 
 - Indicador de cupos con color: verde (> 20), amarillo (6–20), rojo (0–5)
 - Búsqueda por texto de empresa o embarcación (`?q=`)
-- Persistencia en SQLite (`better-sqlite3`)
+- Persistencia en SQLite (`node:sqlite`, Node 22+)
 - Despliegue: Render (API) + Vercel (frontend)
 
 ## Despliegue

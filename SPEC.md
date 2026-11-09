@@ -12,8 +12,8 @@ Sin login, pagos ni ventas.
 
 ## Stack
 
-- Backend: Node.js 20 + Express 4, CommonJS. Paquetes: `express`, `cors`, `better-sqlite3`, `nodemon` (dev). Puerto 3000 (o `PORT` en producción).
-- Persistencia: SQLite (`backend/src/data/salidas.db`) con `better-sqlite3`. Semilla inicial desde `salidas.json` si la base está vacía.
+- Backend: Node.js 22 + Express 4, CommonJS. Paquetes: `express`, `cors`, `nodemon` (dev). Puerto 3000 (o `PORT` en producción).
+- Persistencia: SQLite (`backend/src/data/salidas.db`) con el módulo nativo `node:sqlite`. Semilla inicial desde `salidas.json` si la base está vacía.
 - Frontend: React 18 + Vite, JavaScript (sin TypeScript), `fetch` o `axios`, `react-router-dom`. CSS propio (sin Tailwind ni librerías UI).
 - No agregar dependencias fuera de este spec sin aprobación.
 

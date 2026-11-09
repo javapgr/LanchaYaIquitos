@@ -38,8 +38,9 @@ function seedSiVacio() {
     )
   `);
 
-  const cargar = db.transaction((filas) => {
-    for (const fila of filas) {
+  db.exec('BEGIN');
+  try {
+    for (const fila of semillas) {
       insertar.run(
         fila.id,
         fila.empresa,
@@ -53,9 +54,11 @@ function seedSiVacio() {
         fila.cupos,
       );
     }
-  });
-
-  cargar(semillas);
+    db.exec('COMMIT');
+  } catch (error) {
+    db.exec('ROLLBACK');
+    throw error;
+  }
 }
 
 seedSiVacio();

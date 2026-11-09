@@ -8,7 +8,10 @@ function App() {
     <BrowserRouter>
       <header className="site-header">
         <div className="container site-header-content">
-          <strong className="brand">LANCHAYA</strong>
+          <NavLink to="/" end className="brand">
+            <img src="/images/logo-lanchaya.png" alt="LanchaYa" className="brand-logo" />
+            <span>LANCHA YA!</span>
+          </NavLink>
           <nav aria-label="Navegación principal">
             <NavLink to="/" end>Consultar salidas</NavLink>
             <NavLink to="/admin">Administración</NavLink>

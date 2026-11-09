@@ -6,6 +6,8 @@ import {
 } from '../services/api';
 import { claseCupos, etiquetaCupos } from '../utils/cupos';
 
+const POR_PAGINA = 5;
+
 function formatearFecha(fechaHora) {
   const fecha = new Date(fechaHora);
   return `${fecha.toLocaleDateString('es-PE')} · ${fecha.toLocaleTimeString('es-PE', {
@@ -18,6 +20,7 @@ function Admin() {
   const [salidas, setSalidas] = useState([]);
   const [destinos, setDestinos] = useState([]);
   const [filtros, setFiltros] = useState({ q: '', destino: '', fecha: '', tipo: '' });
+  const [pagina, setPagina] = useState(1);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
   const [salidaEditando, setSalidaEditando] = useState(null);
@@ -39,6 +42,12 @@ function Admin() {
     obtenerDestinos().then(setDestinos).catch((requestError) => setError(requestError.message));
   }, []);
   useEffect(() => { cargarSalidas(); }, [cargarSalidas]);
+  useEffect(() => { setPagina(1); }, [filtros]);
+
+  const totalPaginas = Math.max(1, Math.ceil(salidas.length / POR_PAGINA));
+  const paginaActual = Math.min(pagina, totalPaginas);
+  const inicio = (paginaActual - 1) * POR_PAGINA;
+  const salidasPagina = salidas.slice(inicio, inicio + POR_PAGINA);
 
   function cerrarFormulario() {
     setSalidaEditando(null);
@@ -113,45 +122,68 @@ function Admin() {
           <p className="status">No hay salidas para los filtros seleccionados.</p>
         )}
         {!cargando && !error && salidas.length > 0 && (
-          <div className="table-wrap">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Destino</th>
-                  <th>Empresa</th>
-                  <th>Tipo</th>
-                  <th>Fecha</th>
-                  <th>Puerto</th>
-                  <th>Precio</th>
-                  <th>Cupos</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {salidas.map((salida) => (
-                  <tr key={salida.id}>
-                    <td data-label="Destino">{salida.destino}</td>
-                    <td data-label="Empresa">{salida.empresa}</td>
-                    <td data-label="Tipo">{salida.tipo}</td>
-                    <td data-label="Fecha">{formatearFecha(salida.fechaHora)}</td>
-                    <td data-label="Puerto">{salida.puerto}</td>
-                    <td data-label="Precio">S/ {Number(salida.precio).toFixed(2)}</td>
-                    <td data-label="Cupos">
-                      <span className={`cupos ${claseCupos(salida.cupos)}`}>
-                        {salida.cupos} · {etiquetaCupos(salida.cupos)}
-                      </span>
-                    </td>
-                    <td data-label="Acciones">
-                      <div className="table-actions">
-                        <button type="button" className="button secondary" onClick={() => editar(salida)}>Editar</button>
-                        <button type="button" className="button danger" onClick={() => eliminar(salida.id)}>Eliminar</button>
-                      </div>
-                    </td>
+          <>
+            <div className="table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Destino</th>
+                    <th>Empresa</th>
+                    <th>Tipo</th>
+                    <th>Fecha</th>
+                    <th>Puerto</th>
+                    <th>Precio</th>
+                    <th>Cupos</th>
+                    <th>Acciones</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {salidasPagina.map((salida) => (
+                    <tr key={salida.id}>
+                      <td data-label="Destino">{salida.destino}</td>
+                      <td data-label="Empresa">{salida.empresa}</td>
+                      <td data-label="Tipo">{salida.tipo}</td>
+                      <td data-label="Fecha">{formatearFecha(salida.fechaHora)}</td>
+                      <td data-label="Puerto">{salida.puerto}</td>
+                      <td data-label="Precio">S/ {Number(salida.precio).toFixed(2)}</td>
+                      <td data-label="Cupos">
+                        <span className={`cupos ${claseCupos(salida.cupos)}`}>
+                          {salida.cupos} · {etiquetaCupos(salida.cupos)}
+                        </span>
+                      </td>
+                      <td data-label="Acciones">
+                        <div className="table-actions">
+                          <button type="button" className="button secondary" onClick={() => editar(salida)}>Editar</button>
+                          <button type="button" className="button danger" onClick={() => eliminar(salida.id)}>Eliminar</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <nav className="pagination" aria-label="Paginación de salidas">
+              <button
+                type="button"
+                className="button secondary"
+                disabled={paginaActual <= 1}
+                onClick={() => setPagina(paginaActual - 1)}
+              >
+                Anterior
+              </button>
+              <span className="pagination-info">
+                Página {paginaActual} de {totalPaginas}
+              </span>
+              <button
+                type="button"
+                className="button secondary"
+                disabled={paginaActual >= totalPaginas}
+                onClick={() => setPagina(paginaActual + 1)}
+              >
+                Siguiente
+              </button>
+            </nav>
+          </>
         )}
       </section>
     </main>

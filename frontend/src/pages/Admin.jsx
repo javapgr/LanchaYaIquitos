@@ -86,11 +86,6 @@ function Admin() {
 
   return (
     <main className="container admin-page">
-      <header className="admin-hero">
-        <p className="eyebrow">Panel de administración</p>
-        <h1>Gestionar salidas</h1>
-        <p>Registra, edita o elimina las salidas que verán los clientes.</p>
-      </header>
       <button type="button" className="button primary open-form-button" onClick={() => setFormularioAbierto(true)}>
         Registrar salida
       </button>

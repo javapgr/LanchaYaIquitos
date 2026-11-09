@@ -72,7 +72,6 @@ App en `http://localhost:5173` (consume `http://localhost:3000/api` por defecto)
 LanchaYaIquitos/
 ├── backend/     # API REST + SQLite
 ├── frontend/    # React (Home + Admin)
-├── SPEC.md
 ├── render.yaml
 └── README.md
 ```

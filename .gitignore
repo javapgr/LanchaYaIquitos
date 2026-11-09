@@ -6,6 +6,7 @@ dist/
 npm-debug.log*
 .github/copilot-instructions.md
 .cursor/
+SPEC.md
 *.db
 *.db-shm
 *.db-wal

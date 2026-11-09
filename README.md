@@ -89,7 +89,9 @@ Scripts:
    - Root Directory: `backend`
    - Build: `npm install`
    - Start: `npm start`
-3. Variable `CORS_ORIGIN` = URL del frontend en Vercel (sin barra final).
+3. Variables:
+   - `NODE_VERSION` = `22` (obligatorio)
+   - `CORS_ORIGIN` = URL del frontend en Vercel (sin barra final)
 
 ### Frontend (Vercel)
 

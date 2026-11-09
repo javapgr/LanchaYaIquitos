@@ -86,7 +86,7 @@ function Admin() {
 
   return (
     <main className="container admin-page">
-      <header className="hero admin-hero">
+      <header className="admin-hero">
         <p className="eyebrow">Panel de administración</p>
         <h1>Gestionar salidas</h1>
         <p>Registra, edita o elimina las salidas que verán los clientes.</p>
@@ -123,44 +123,36 @@ function Admin() {
         )}
         {!cargando && !error && salidas.length > 0 && (
           <>
-            <div className="table-wrap">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Destino</th>
-                    <th>Empresa</th>
-                    <th>Tipo</th>
-                    <th>Fecha</th>
-                    <th>Puerto</th>
-                    <th>Precio</th>
-                    <th>Cupos</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {salidasPagina.map((salida) => (
-                    <tr key={salida.id}>
-                      <td data-label="Destino">{salida.destino}</td>
-                      <td data-label="Empresa">{salida.empresa}</td>
-                      <td data-label="Tipo">{salida.tipo}</td>
-                      <td data-label="Fecha">{formatearFecha(salida.fechaHora)}</td>
-                      <td data-label="Puerto">{salida.puerto}</td>
-                      <td data-label="Precio">S/ {Number(salida.precio).toFixed(2)}</td>
-                      <td data-label="Cupos">
-                        <span className={`cupos ${claseCupos(salida.cupos)}`}>
-                          {salida.cupos} · {etiquetaCupos(salida.cupos)}
-                        </span>
-                      </td>
-                      <td data-label="Acciones">
-                        <div className="table-actions">
-                          <button type="button" className="button secondary" onClick={() => editar(salida)}>Editar</button>
-                          <button type="button" className="button danger" onClick={() => eliminar(salida.id)}>Eliminar</button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="admin-list" role="table" aria-label="Salidas registradas">
+              <div className="admin-list-head" role="row">
+                <span role="columnheader">Destino</span>
+                <span role="columnheader">Empresa</span>
+                <span role="columnheader">Tipo</span>
+                <span role="columnheader">Fecha</span>
+                <span role="columnheader">Puerto</span>
+                <span role="columnheader">Precio</span>
+                <span role="columnheader">Cupos</span>
+                <span role="columnheader">Acciones</span>
+              </div>
+              {salidasPagina.map((salida) => (
+                <div className="admin-list-row" role="row" key={salida.id}>
+                  <span data-label="Destino" role="cell">{salida.destino}</span>
+                  <span data-label="Empresa" role="cell">{salida.empresa}</span>
+                  <span data-label="Tipo" role="cell">{salida.tipo}</span>
+                  <span data-label="Fecha" role="cell">{formatearFecha(salida.fechaHora)}</span>
+                  <span data-label="Puerto" role="cell">{salida.puerto}</span>
+                  <span data-label="Precio" role="cell">S/ {Number(salida.precio).toFixed(2)}</span>
+                  <span data-label="Cupos" role="cell">
+                    <span className={`cupos ${claseCupos(salida.cupos)}`} title={etiquetaCupos(salida.cupos)}>
+                      {salida.cupos}
+                    </span>
+                  </span>
+                  <span data-label="Acciones" role="cell" className="admin-list-actions">
+                    <button type="button" className="button secondary" onClick={() => editar(salida)}>Editar</button>
+                    <button type="button" className="button danger" onClick={() => eliminar(salida.id)}>Eliminar</button>
+                  </span>
+                </div>
+              ))}
             </div>
             <nav className="pagination" aria-label="Paginación de salidas">
               <button

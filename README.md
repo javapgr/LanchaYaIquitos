@@ -2,6 +2,11 @@
 
 Consulta y administración de salidas fluviales desde Iquitos: destinos, horarios, precios y cupos.
 
+## Demo en vivo
+
+- Frontend: https://lanchaya.vercel.app
+- API: https://lanchayaiquitos.onrender.com/api/health
+
 ## Estructura
 
 ```

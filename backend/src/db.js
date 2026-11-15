@@ -222,6 +222,22 @@ function seedSiVacio() {
   }
 }
 
+function crearTablaReservas() {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS reservas (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      salidaId INTEGER NOT NULL,
+      nombre TEXT NOT NULL,
+      dni TEXT NOT NULL,
+      telefono TEXT NOT NULL,
+      cantidad INTEGER NOT NULL CHECK (cantidad > 0),
+      codigo TEXT NOT NULL UNIQUE,
+      creadoEn TEXT NOT NULL,
+      FOREIGN KEY (salidaId) REFERENCES salidas(id)
+    )
+  `);
+}
+
 crearTablaEmpresas();
 db.exec(`
   CREATE TABLE IF NOT EXISTS salidas (
@@ -248,5 +264,6 @@ if (!columnasDe('salidas').includes('estado')) {
 }
 normalizarFechasExistentes();
 seedSiVacio();
+crearTablaReservas();
 
 module.exports = db;

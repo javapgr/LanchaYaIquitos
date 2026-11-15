@@ -345,6 +345,8 @@ select:focus {
   cursor: pointer;
 }
 
+.button:disabled { opacity: .5; cursor: not-allowed; }
+
 .primary { background: var(--verde); color: var(--blanco); }
 .primary:hover { background: var(--verde-medio); }
 .secondary { background: var(--verde-suave); color: var(--verde); }
@@ -463,6 +465,25 @@ select:focus {
 
 .status { text-align: center; padding: 30px; color: var(--muted); }
 .error-message { color: #7f1d1d; }
+.form-help { color: var(--muted); margin-top: -8px; }
+.reservation-lookup { max-width: 640px; margin: 20px auto; }
+.reservation-details { margin-top: 20px; }
+.reservation-success {
+  display: grid;
+  gap: 14px;
+  width: min(420px, 100%);
+  padding: 28px;
+  background: var(--blanco);
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: var(--sombra);
+}
+.reservation-success h2 { margin: 0; color: var(--verde); }
+.reservation-success strong {
+  color: var(--rio);
+  font-size: 2rem;
+  letter-spacing: .12em;
+}
 
 .admin-list {
   background: var(--blanco);

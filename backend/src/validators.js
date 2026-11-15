@@ -123,11 +123,44 @@ function datosEmpresa(body) {
   };
 }
 
+function validarReserva(body) {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return 'El cuerpo de la solicitud debe ser un objeto';
+  }
+
+  for (const campo of ['nombre', 'dni', 'telefono']) {
+    if (typeof body[campo] !== 'string' || !body[campo].trim()) {
+      return `El campo ${campo} es obligatorio`;
+    }
+  }
+
+  if (!/^\d{8}$/.test(body.dni)) {
+    return 'El DNI debe tener exactamente 8 dígitos';
+  }
+
+  if (!Number.isInteger(body.cantidad) || body.cantidad <= 0) {
+    return 'La cantidad debe ser un entero mayor que 0';
+  }
+
+  return null;
+}
+
+function datosReserva(body) {
+  return {
+    nombre: body.nombre.trim(),
+    dni: body.dni.trim(),
+    telefono: body.telefono.trim(),
+    cantidad: body.cantidad,
+  };
+}
+
 module.exports = {
   validarSalida,
   validarEmpresa,
   normalizarEstado,
   datosEmpresa,
+  validarReserva,
+  datosReserva,
   obtenerId,
   datosSalida,
   normalizarFechaHora,

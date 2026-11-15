@@ -190,6 +190,14 @@ function actualizarSalida(req, res, next) {
 function eliminarSalida(req, res, next) {
   try {
     const id = obtenerId(req.params.id);
+    const reservas = db.prepare('SELECT COUNT(*) AS total FROM reservas WHERE salidaId = ?').get(id);
+    if (reservas.total > 0) {
+      return res.status(409).json({
+        error: true,
+        mensaje: 'No se puede eliminar una salida con reservas',
+      });
+    }
+
     const resultado = db.prepare('DELETE FROM salidas WHERE id = ?').run(id);
 
     if (resultado.changes === 0) {

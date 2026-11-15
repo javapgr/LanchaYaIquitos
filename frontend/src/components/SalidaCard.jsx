@@ -5,8 +5,10 @@ function claseEstado(estado) {
   return estado === 'zarpó' ? 'zarpo' : estado;
 }
 
-function SalidaCard({ salida }) {
+function SalidaCard({ salida, onReservar }) {
   const fecha = new Date(salida.fechaHora);
+  const noAceptaReservas = ['zarpó', 'zarpo', 'cancelada'].includes(salida.estado)
+    || salida.cupos <= 0;
 
   return (
     <article className="card">
@@ -31,6 +33,18 @@ function SalidaCard({ salida }) {
         <div><dt>Duración</dt><dd>{salida.duracionHoras} horas</dd></div>
       </dl>
       <strong className="price">S/ {salida.precio.toFixed(2)}</strong>
+      {onReservar && (
+        <div className="card-actions">
+          <button
+            type="button"
+            className="button primary"
+            disabled={noAceptaReservas}
+            onClick={() => onReservar(salida)}
+          >
+            {salida.cupos > 0 ? 'Reservar' : 'Agotado'}
+          </button>
+        </div>
+      )}
     </article>
   );
 }

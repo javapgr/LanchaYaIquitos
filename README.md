@@ -101,6 +101,10 @@ Rutas web:
 | POST | `/api/salidas` | Crear |
 | PUT | `/api/salidas/:id` | Actualizar |
 | PATCH | `/api/salidas/:id/estado` | Cambiar estado |
+| POST | `/api/salidas/:id/reservas` | Crear reserva |
+| GET | `/api/salidas/:id/reservas` | Listar reservas de una salida |
+| DELETE | `/api/reservas/:id` | Cancelar reserva y devolver cupos |
+| GET | `/api/reservas/:codigo` | Consultar reserva por código |
 | DELETE | `/api/salidas/:id` | Eliminar |
 | GET | `/api/destinos` | Destinos únicos |
 | GET | `/api/empresas` | Empresas activas |
@@ -118,6 +122,8 @@ una empresa se da de baja. Una empresa con salidas futuras responde `409` al
 intentar darla de baja.
 Los estados válidos de una salida son `programada`, `abordando`, `zarpó`,
 `zarpo` y `cancelada`; `zarpo` se normaliza a `zarpó`.
+Las reservas generan códigos únicos con formato `LY-XXXXX` y no requieren
+pago. Las salidas canceladas o zarpadas no aceptan reservas.
 
 ---
 

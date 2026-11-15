@@ -44,3 +44,8 @@ export const actualizarSalida = (id, salida) =>
 export const actualizarEstadoSalida = (id, estado) =>
   request(`/salidas/${id}/estado`, { method: 'PATCH', body: JSON.stringify({ estado }) });
 export const eliminarSalida = (id) => request(`/salidas/${id}`, { method: 'DELETE' });
+export const crearReserva = (id, reserva) =>
+  request(`/salidas/${id}/reservas`, { method: 'POST', body: JSON.stringify(reserva) });
+export const obtenerReservasSalida = (id) => request(`/salidas/${id}/reservas`);
+export const eliminarReserva = (id) => request(`/reservas/${id}`, { method: 'DELETE' });
+export const obtenerReserva = (codigo) => request(`/reservas/${encodeURIComponent(codigo)}`);

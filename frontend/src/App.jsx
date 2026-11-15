@@ -3,6 +3,7 @@ import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom';
 import Admin from './pages/Admin';
 import Empresas from './pages/Empresas';
 import Home from './pages/Home';
+import ReservaConsulta from './pages/ReservaConsulta';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
               <NavLink to="/" end>Consultar salidas</NavLink>
               <NavLink to="/admin">Administración</NavLink>
               <NavLink to="/empresas">Empresas</NavLink>
+              <NavLink to="/reservas">Consultar reserva</NavLink>
             </nav>
           </div>
         </header>
@@ -26,6 +28,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/empresas" element={<Empresas />} />
+            <Route path="/reservas" element={<ReservaConsulta />} />
           </Routes>
         </div>
         <footer className="site-footer">
@@ -41,6 +44,7 @@ function App() {
               <NavLink to="/" end>Consultar salidas</NavLink>
               <NavLink to="/admin">Administración</NavLink>
               <NavLink to="/empresas">Empresas</NavLink>
+              <NavLink to="/reservas">Consultar reserva</NavLink>
             </nav>
             <p className="footer-copy">Puertos Henry, Masusa, Productores y Bellavista Nanay.</p>
           </div>

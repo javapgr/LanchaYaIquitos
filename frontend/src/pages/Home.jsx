@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Filtros from '../components/Filtros';
+import ReservaForm from '../components/ReservaForm';
 import SalidaCard from '../components/SalidaCard';
-import { obtenerDestinos, obtenerSalidas } from '../services/api';
+import { crearReserva, obtenerDestinos, obtenerSalidas } from '../services/api';
 
 function Home() {
   const [salidas, setSalidas] = useState([]);
@@ -9,6 +10,8 @@ function Home() {
   const [filtros, setFiltros] = useState({ q: '', destino: '', fecha: '', tipo: '' });
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
+  const [salidaReservando, setSalidaReservando] = useState(null);
+  const [codigoReserva, setCodigoReserva] = useState('');
 
   const cargarSalidas = useCallback(async () => {
     setCargando(true);
@@ -37,6 +40,17 @@ function Home() {
 
   function irAListado() {
     document.getElementById('salidas')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  async function reservar(datos) {
+    try {
+      const reserva = await crearReserva(salidaReservando.id, datos);
+      setCodigoReserva(reserva.codigo);
+      setSalidaReservando(null);
+      await cargarSalidas();
+    } catch (requestError) {
+      setError(requestError.message);
+    }
   }
 
   return (
@@ -71,11 +85,41 @@ function Home() {
           )}
           {!cargando && !error && salidas.length > 0 && (
             <div className="cards">
-              {salidas.map((salida) => <SalidaCard key={salida.id} salida={salida} />)}
+              {salidas.map((salida) => (
+                <SalidaCard
+                  key={salida.id}
+                  salida={salida}
+                  onReservar={setSalidaReservando}
+                />
+              ))}
             </div>
           )}
         </section>
       </main>
+      {salidaReservando && (
+        <div className="modal-backdrop" role="presentation" onMouseDown={(event) => {
+          if (event.target === event.currentTarget) setSalidaReservando(null);
+        }}>
+          <div className="modal">
+            <button type="button" className="close-button" aria-label="Cerrar reserva" onClick={() => setSalidaReservando(null)}>×</button>
+            <ReservaForm
+              salida={salidaReservando}
+              onReservar={reservar}
+              onCancelar={() => setSalidaReservando(null)}
+            />
+          </div>
+        </div>
+      )}
+      {codigoReserva && (
+        <div className="modal-backdrop" role="presentation">
+          <div className="modal reservation-success">
+            <h2>Reserva confirmada</h2>
+            <p>Guarda este código para consultar tu reserva:</p>
+            <strong>{codigoReserva}</strong>
+            <button type="button" className="button primary" onClick={() => setCodigoReserva('')}>Continuar</button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

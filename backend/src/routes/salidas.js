@@ -6,6 +6,7 @@ const {
   actualizarSalida,
   eliminarSalida,
   listarDestinos,
+  actualizarEstado,
 } = require('../controllers/salidas.controller');
 
 const router = express.Router();
@@ -15,6 +16,7 @@ router.get('/salidas', listarSalidas);
 router.get('/salidas/:id', obtenerSalida);
 router.post('/salidas', crearSalida);
 router.put('/salidas/:id', actualizarSalida);
+router.patch('/salidas/:id/estado', actualizarEstado);
 router.delete('/salidas/:id', eliminarSalida);
 
 module.exports = router;

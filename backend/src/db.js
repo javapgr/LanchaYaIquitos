@@ -80,6 +80,8 @@ function migrarSalidasExistentes() {
         precio REAL NOT NULL,
         capacidad INTEGER NOT NULL,
         cupos INTEGER NOT NULL,
+        estado TEXT NOT NULL DEFAULT 'programada'
+          CHECK (estado IN ('programada', 'abordando', 'zarpó', 'zarpo', 'cancelada')),
         FOREIGN KEY (empresaId) REFERENCES empresas(id)
       )
     `);
@@ -88,8 +90,8 @@ function migrarSalidasExistentes() {
     const insertarSalida = db.prepare(`
       INSERT INTO salidas_nueva (
         id, empresaId, embarcacion, tipo, destino, puerto, fechaHora,
-        duracionHoras, precio, capacidad, cupos
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        duracionHoras, precio, capacidad, cupos, estado
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     for (const fila of filas) {
@@ -105,6 +107,7 @@ function migrarSalidasExistentes() {
         fila.precio,
         fila.cupos,
         fila.cupos,
+        'programada',
       );
     }
 
@@ -160,6 +163,8 @@ function crearTablaSalidas() {
       precio REAL NOT NULL,
       capacidad INTEGER NOT NULL,
       cupos INTEGER NOT NULL,
+      estado TEXT NOT NULL DEFAULT 'programada'
+        CHECK (estado IN ('programada', 'abordando', 'zarpó', 'zarpo', 'cancelada')),
       FOREIGN KEY (empresaId) REFERENCES empresas(id)
     )
   `);
@@ -177,8 +182,8 @@ function seedSiVacio() {
   const insertarSalida = db.prepare(`
     INSERT INTO salidas (
       id, empresaId, embarcacion, tipo, destino, puerto, fechaHora,
-      duracionHoras, precio, capacidad, cupos
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      duracionHoras, precio, capacidad, cupos, estado
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   const empresasPorNombre = new Map();
 
@@ -207,6 +212,7 @@ function seedSiVacio() {
         fila.precio,
         fila.cupos,
         fila.cupos,
+        'programada',
       );
     }
     db.exec('COMMIT');
@@ -233,6 +239,13 @@ db.exec(`
 `);
 migrarSalidasExistentes();
 crearTablaSalidas();
+if (!columnasDe('salidas').includes('estado')) {
+  db.exec(`
+    ALTER TABLE salidas
+    ADD COLUMN estado TEXT NOT NULL DEFAULT 'programada'
+      CHECK (estado IN ('programada', 'abordando', 'zarpó', 'zarpo', 'cancelada'))
+  `);
+}
 normalizarFechasExistentes();
 seedSiVacio();
 

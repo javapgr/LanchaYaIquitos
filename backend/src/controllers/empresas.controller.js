@@ -149,7 +149,7 @@ function listarSalidasEmpresa(req, res, next) {
       SELECT
         s.id, s.empresaId, e.razonSocial AS empresa, s.embarcacion, s.tipo,
         s.destino, s.puerto, s.fechaHora, s.duracionHoras, s.precio,
-        s.capacidad, s.cupos
+        s.capacidad, s.cupos, s.estado
       FROM salidas s
       JOIN empresas e ON e.id = s.empresaId
       WHERE s.empresaId = ?

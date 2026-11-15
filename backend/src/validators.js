@@ -1,4 +1,5 @@
 const tiposPermitidos = ['lancha', 'rapido', 'deslizador'];
+const estadosPermitidos = ['programada', 'abordando', 'zarpó', 'zarpo', 'cancelada'];
 
 function normalizarFechaHora(valor) {
   if (typeof valor !== 'string' || Number.isNaN(Date.parse(valor))) {
@@ -73,6 +74,11 @@ function obtenerId(parametro) {
   return Number.isInteger(id) && id > 0 ? id : null;
 }
 
+function normalizarEstado(valor) {
+  if (valor === 'zarpo') return 'zarpó';
+  return estadosPermitidos.includes(valor) ? valor : null;
+}
+
 function datosSalida(body) {
   const { id: _ignorado, ...datos } = body;
   return {
@@ -120,6 +126,7 @@ function datosEmpresa(body) {
 module.exports = {
   validarSalida,
   validarEmpresa,
+  normalizarEstado,
   datosEmpresa,
   obtenerId,
   datosSalida,

@@ -20,17 +20,21 @@ function listarSalidas(req, res, next) {
       valores.push(tipo);
     }
     if (q) {
-      condiciones.push('(LOWER(empresa) LIKE ? OR LOWER(embarcacion) LIKE ?)');
+      condiciones.push('(LOWER(e.razonSocial) LIKE ? OR LOWER(s.embarcacion) LIKE ?)');
       const texto = `%${String(q).trim().toLowerCase()}%`;
       valores.push(texto, texto);
     }
 
     const where = condiciones.length ? `WHERE ${condiciones.join(' AND ')}` : '';
     const salidas = db.prepare(`
-      SELECT id, empresa, embarcacion, tipo, destino, puerto, fechaHora, duracionHoras, precio, cupos
-      FROM salidas
+      SELECT
+        s.id, s.empresaId, e.razonSocial AS empresa, s.embarcacion, s.tipo,
+        s.destino, s.puerto, s.fechaHora, s.duracionHoras, s.precio,
+        s.capacidad, s.cupos
+      FROM salidas s
+      JOIN empresas e ON e.id = s.empresaId
       ${where}
-      ORDER BY fechaHora ASC
+      ORDER BY s.fechaHora ASC
     `).all(...valores);
 
     return res.json(salidas);
@@ -43,9 +47,13 @@ function obtenerSalida(req, res, next) {
   try {
     const id = obtenerId(req.params.id);
     const salida = db.prepare(`
-      SELECT id, empresa, embarcacion, tipo, destino, puerto, fechaHora, duracionHoras, precio, cupos
-      FROM salidas
-      WHERE id = ?
+      SELECT
+        s.id, s.empresaId, e.razonSocial AS empresa, s.embarcacion, s.tipo,
+        s.destino, s.puerto, s.fechaHora, s.duracionHoras, s.precio,
+        s.capacidad, s.cupos
+      FROM salidas s
+      JOIN empresas e ON e.id = s.empresaId
+      WHERE s.id = ?
     `).get(id);
 
     if (!salida) {
@@ -66,12 +74,19 @@ function crearSalida(req, res, next) {
     }
 
     const datos = datosSalida(req.body);
+    const empresa = db.prepare('SELECT id FROM empresas WHERE id = ? AND activa = 1')
+      .get(datos.empresaId);
+    if (!empresa) {
+      return res.status(400).json({ error: true, mensaje: 'La empresa no existe o está inactiva' });
+    }
+
     const resultado = db.prepare(`
       INSERT INTO salidas (
-        empresa, embarcacion, tipo, destino, puerto, fechaHora, duracionHoras, precio, cupos
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        empresaId, embarcacion, tipo, destino, puerto, fechaHora, duracionHoras,
+        precio, capacidad, cupos
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
-      datos.empresa,
+      datos.empresaId,
       datos.embarcacion,
       datos.tipo,
       datos.destino,
@@ -79,13 +94,18 @@ function crearSalida(req, res, next) {
       datos.fechaHora,
       datos.duracionHoras,
       datos.precio,
+      datos.capacidad,
       datos.cupos,
     );
 
     const salida = db.prepare(`
-      SELECT id, empresa, embarcacion, tipo, destino, puerto, fechaHora, duracionHoras, precio, cupos
-      FROM salidas
-      WHERE id = ?
+      SELECT
+        s.id, s.empresaId, e.razonSocial AS empresa, s.embarcacion, s.tipo,
+        s.destino, s.puerto, s.fechaHora, s.duracionHoras, s.precio,
+        s.capacidad, s.cupos
+      FROM salidas s
+      JOIN empresas e ON e.id = s.empresaId
+      WHERE s.id = ?
     `).get(resultado.lastInsertRowid);
 
     return res.status(201).json(salida);
@@ -99,18 +119,32 @@ function actualizarSalida(req, res, next) {
     const id = obtenerId(req.params.id);
     const errorValidacion = validarSalida(req.body);
     if (errorValidacion) {
-      return res.status(400).json({ error: errorValidacion });
+      return res.status(400).json({ error: true, mensaje: errorValidacion });
     }
 
-    const existente = db.prepare('SELECT id FROM salidas WHERE id = ?').get(id);
+    const existente = db.prepare('SELECT id, capacidad, cupos FROM salidas WHERE id = ?').get(id);
     if (!existente) {
       return res.status(404).json({ error: true, mensaje: 'Salida no encontrada' });
     }
 
     const datos = datosSalida(req.body);
+    const empresa = db.prepare('SELECT id FROM empresas WHERE id = ? AND activa = 1')
+      .get(datos.empresaId);
+    if (!empresa) {
+      return res.status(400).json({ error: true, mensaje: 'La empresa no existe o está inactiva' });
+    }
+
+    const reservados = existente.capacidad - existente.cupos;
+    if (datos.capacidad < reservados) {
+      return res.status(400).json({
+        error: true,
+        mensaje: `La capacidad no puede ser menor que los ${reservados} cupos reservados`,
+      });
+    }
+
     db.prepare(`
       UPDATE salidas SET
-        empresa = ?,
+        empresaId = ?,
         embarcacion = ?,
         tipo = ?,
         destino = ?,
@@ -118,10 +152,11 @@ function actualizarSalida(req, res, next) {
         fechaHora = ?,
         duracionHoras = ?,
         precio = ?,
+        capacidad = ?,
         cupos = ?
       WHERE id = ?
     `).run(
-      datos.empresa,
+      datos.empresaId,
       datos.embarcacion,
       datos.tipo,
       datos.destino,
@@ -129,14 +164,19 @@ function actualizarSalida(req, res, next) {
       datos.fechaHora,
       datos.duracionHoras,
       datos.precio,
+      datos.capacidad,
       datos.cupos,
       id,
     );
 
     const salida = db.prepare(`
-      SELECT id, empresa, embarcacion, tipo, destino, puerto, fechaHora, duracionHoras, precio, cupos
-      FROM salidas
-      WHERE id = ?
+      SELECT
+        s.id, s.empresaId, e.razonSocial AS empresa, s.embarcacion, s.tipo,
+        s.destino, s.puerto, s.fechaHora, s.duracionHoras, s.precio,
+        s.capacidad, s.cupos
+      FROM salidas s
+      JOIN empresas e ON e.id = s.empresaId
+      WHERE s.id = ?
     `).get(id);
 
     return res.json(salida);

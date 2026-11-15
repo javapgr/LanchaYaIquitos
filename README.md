@@ -37,6 +37,7 @@ Dev-Danilo Said Bardales Panduro
 - Buscar por empresa o embarcación
 - Ver cupos con color (verde / amarillo / rojo)
 - Admin: crear, editar y eliminar salidas
+- Admin: gestionar empresas activas y asociarlas a las salidas
 
 ---
 
@@ -101,9 +102,19 @@ Rutas web:
 | PUT | `/api/salidas/:id` | Actualizar |
 | DELETE | `/api/salidas/:id` | Eliminar |
 | GET | `/api/destinos` | Destinos únicos |
+| GET | `/api/empresas` | Empresas activas |
+| GET | `/api/empresas/:id` | Detalle de empresa activa |
+| POST | `/api/empresas` | Crear empresa |
+| PUT | `/api/empresas/:id` | Actualizar empresa |
+| DELETE | `/api/empresas/:id` | Dar de baja empresa |
+| GET | `/api/empresas/:id/salidas` | Salidas de una empresa |
 | GET | `/api/health` | Estado del servidor |
 
 La base SQLite se crea sola y se siembra con 12 salidas desde `backend/src/data/salidas.json`.
+Las empresas antiguas se migran con RUC temporales `20000000001`,
+`20000000002`, etc. Estos RUC son editables, pero permanecen reservados cuando
+una empresa se da de baja. Una empresa con salidas futuras responde `409` al
+intentar darla de baja.
 
 ---
 

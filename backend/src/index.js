@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const rutasSalidas = require('./routes/salidas');
+const rutasEmpresas = require('./routes/empresas');
 const logger = require('./middleware/logger');
 const { errorHandler } = require('./middleware/error-handler');
 
@@ -20,6 +21,7 @@ app.use(cors({
 app.use(logger);
 app.use(express.json());
 app.use('/api', rutasSalidas);
+app.use('/api', rutasEmpresas);
 
 app.get('/api/health', (req, res) => {
   res.json({ ok: true });

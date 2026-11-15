@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom';
 import Admin from './pages/Admin';
+import Empresas from './pages/Empresas';
 import Home from './pages/Home';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
             <nav aria-label="Navegación principal">
               <NavLink to="/" end>Consultar salidas</NavLink>
               <NavLink to="/admin">Administración</NavLink>
+              <NavLink to="/empresas">Empresas</NavLink>
             </nav>
           </div>
         </header>
@@ -23,6 +25,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/empresas" element={<Empresas />} />
           </Routes>
         </div>
         <footer className="site-footer">
@@ -37,6 +40,7 @@ function App() {
             <nav className="footer-nav" aria-label="Enlaces del pie">
               <NavLink to="/" end>Consultar salidas</NavLink>
               <NavLink to="/admin">Administración</NavLink>
+              <NavLink to="/empresas">Empresas</NavLink>
             </nav>
             <p className="footer-copy">Puertos Henry, Masusa, Productores y Bellavista Nanay.</p>
           </div>

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Filtros from '../components/Filtros';
 import SalidaForm from '../components/SalidaForm';
 import {
-  actualizarSalida, crearSalida, eliminarSalida, obtenerDestinos, obtenerSalidas,
+  actualizarSalida, crearSalida, eliminarSalida, obtenerDestinos, obtenerEmpresas, obtenerSalidas,
 } from '../services/api';
 import { claseCupos, etiquetaCupos } from '../utils/cupos';
 
@@ -19,6 +19,7 @@ function formatearFecha(fechaHora) {
 function Admin() {
   const [salidas, setSalidas] = useState([]);
   const [destinos, setDestinos] = useState([]);
+  const [empresas, setEmpresas] = useState([]);
   const [filtros, setFiltros] = useState({ q: '', destino: '', fecha: '', tipo: '' });
   const [pagina, setPagina] = useState(1);
   const [cargando, setCargando] = useState(true);
@@ -40,6 +41,7 @@ function Admin() {
 
   useEffect(() => {
     obtenerDestinos().then(setDestinos).catch((requestError) => setError(requestError.message));
+    obtenerEmpresas().then(setEmpresas).catch((requestError) => setError(requestError.message));
   }, []);
   useEffect(() => { cargarSalidas(); }, [cargarSalidas]);
   useEffect(() => { setPagina(1); }, [filtros]);
@@ -99,7 +101,12 @@ function Admin() {
         >
           <div className="modal">
             <button type="button" className="close-button" aria-label="Cerrar formulario" onClick={cerrarFormulario}>×</button>
-            <SalidaForm salida={salidaEditando} onGuardar={guardar} onCancelar={cerrarFormulario} />
+            <SalidaForm
+              salida={salidaEditando}
+              empresas={empresas}
+              onGuardar={guardar}
+              onCancelar={cerrarFormulario}
+            />
           </div>
         </div>
       )}
@@ -139,7 +146,7 @@ function Admin() {
                   <span data-label="Precio" role="cell">S/ {Number(salida.precio).toFixed(2)}</span>
                   <span data-label="Cupos" role="cell">
                     <span className={`cupos ${claseCupos(salida.cupos)}`} title={etiquetaCupos(salida.cupos)}>
-                      {salida.cupos}
+                      {salida.cupos} / {salida.capacidad}
                     </span>
                   </span>
                   <span data-label="Acciones" role="cell" className="admin-list-actions">

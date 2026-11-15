@@ -29,6 +29,14 @@ export function obtenerSalidas(filtros = {}) {
 }
 
 export const obtenerDestinos = () => request('/destinos');
+export const obtenerEmpresas = () => request('/empresas');
+export const obtenerEmpresa = (id) => request(`/empresas/${id}`);
+export const crearEmpresa = (empresa) =>
+  request('/empresas', { method: 'POST', body: JSON.stringify(empresa) });
+export const actualizarEmpresa = (id, empresa) =>
+  request(`/empresas/${id}`, { method: 'PUT', body: JSON.stringify(empresa) });
+export const eliminarEmpresa = (id) => request(`/empresas/${id}`, { method: 'DELETE' });
+export const obtenerSalidasEmpresa = (id) => request(`/empresas/${id}/salidas`);
 export const crearSalida = (salida) =>
   request('/salidas', { method: 'POST', body: JSON.stringify(salida) });
 export const actualizarSalida = (id, salida) =>

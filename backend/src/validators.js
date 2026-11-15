@@ -18,10 +18,14 @@ function validarSalida(body, { esNuevo = false } = {}) {
     return 'El cuerpo de la solicitud debe ser un objeto';
   }
 
-  for (const campo of ['empresa', 'embarcacion', 'destino', 'puerto', 'fechaHora']) {
+  for (const campo of ['embarcacion', 'destino', 'puerto', 'fechaHora']) {
     if (typeof body[campo] !== 'string' || !body[campo].trim()) {
       return `El campo ${campo} es obligatorio`;
     }
+  }
+
+  if (!Number.isInteger(body.empresaId) || body.empresaId <= 0) {
+    return 'El empresaId debe ser un entero positivo';
   }
 
   if (!tiposPermitidos.includes(body.tipo)) {
@@ -53,6 +57,14 @@ function validarSalida(body, { esNuevo = false } = {}) {
     return 'Los cupos deben ser un número entero igual o mayor que 0';
   }
 
+  if (!Number.isInteger(body.capacidad) || body.capacidad <= 0) {
+    return 'La capacidad debe ser un número entero mayor que 0';
+  }
+
+  if (body.cupos > body.capacidad) {
+    return 'Los cupos no pueden superar la capacidad';
+  }
+
   return null;
 }
 
@@ -64,7 +76,7 @@ function obtenerId(parametro) {
 function datosSalida(body) {
   const { id: _ignorado, ...datos } = body;
   return {
-    empresa: datos.empresa.trim(),
+    empresaId: datos.empresaId,
     embarcacion: datos.embarcacion.trim(),
     tipo: datos.tipo,
     destino: datos.destino.trim(),
@@ -72,12 +84,43 @@ function datosSalida(body) {
     fechaHora: normalizarFechaHora(datos.fechaHora),
     duracionHoras: datos.duracionHoras,
     precio: datos.precio,
+    capacidad: datos.capacidad,
     cupos: datos.cupos,
+  };
+}
+
+function validarEmpresa(body) {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return 'El cuerpo de la solicitud debe ser un objeto';
+  }
+
+  for (const campo of ['razonSocial', 'ruc', 'telefono', 'puertoBase']) {
+    if (typeof body[campo] !== 'string' || !body[campo].trim()) {
+      return `El campo ${campo} es obligatorio`;
+    }
+  }
+
+  if (!/^\d{11}$/.test(body.ruc)) {
+    return 'El RUC debe tener exactamente 11 dígitos';
+  }
+
+  return null;
+}
+
+function datosEmpresa(body) {
+  const { id: _ignorado, activa: _activa, ...datos } = body;
+  return {
+    razonSocial: datos.razonSocial.trim(),
+    ruc: datos.ruc.trim(),
+    telefono: datos.telefono.trim(),
+    puertoBase: datos.puertoBase.trim(),
   };
 }
 
 module.exports = {
   validarSalida,
+  validarEmpresa,
+  datosEmpresa,
   obtenerId,
   datosSalida,
   normalizarFechaHora,

@@ -31,6 +31,15 @@ app.use((req, res) => {
 
 app.use(errorHandler);
 
-app.listen(puerto, () => {
+const servidor = app.listen(puerto, () => {
   console.log(`Servidor ejecutándose en http://localhost:${puerto}`);
+});
+
+servidor.on('error', (error) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(`El puerto ${puerto} está ocupado. Cierra el proceso que lo usa e intenta de nuevo.`);
+    process.exit(1);
+  }
+  console.error(error.message);
+  process.exit(1);
 });

@@ -70,6 +70,8 @@ npm run dev
 
 App en `http://localhost:5173` (consume `http://localhost:3000/api` por defecto).
 
+Si los puertos 3000 o 5173 quedan ocupados por procesos node viejos, ejecuta desde la raíz `powershell -ExecutionPolicy Bypass -File scripts/liberar-puertos.ps1`: muestra qué proceso los usa y cierra solo los que son node.
+
 ---
 
 ## Estructura

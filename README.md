@@ -54,6 +54,12 @@ npm run dev
 
 API en `http://localhost:3000`
 
+La base SQLite usa `DATA_PATH` como ruta opcional al archivo. Si `salidas` ya
+tiene registros, el seed no se vuelve a ejecutar. Para refrescar una base local
+existente, detén el backend, respalda el archivo indicado por `DATA_PATH` y
+elimínalo; al iniciar nuevamente se creará y sembrará desde
+`backend/src/data/salidas.json`.
+
 ### 2. Frontend
 
 ```bash

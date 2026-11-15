@@ -13,7 +13,7 @@ async function request(path, options = {}) {
 
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
-    throw new Error(body.error || 'No se pudo completar la solicitud');
+    throw new Error(body.mensaje || 'No se pudo completar la solicitud');
   }
 
   return response.status === 204 ? null : response.json();

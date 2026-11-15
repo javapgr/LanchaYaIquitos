@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { formatearFechaHora } from '../utils/fechas';
 
-function ReservaForm({ salida, onReservar, onCancelar }) {
+function ReservaForm({ salida, onReservar, onCancelar, errorServidor = '' }) {
   const [formulario, setFormulario] = useState({
     nombre: '',
     dni: '',
@@ -28,8 +29,9 @@ function ReservaForm({ salida, onReservar, onCancelar }) {
   return (
     <form className="form-panel" onSubmit={enviar}>
       <h2>Reservar salida a {salida.destino}</h2>
-      <p className="form-help">{salida.cupos} cupos disponibles · {salida.fechaHora.replace('T', ' ')}</p>
-      {error && <p className="error-message">{error}</p>}
+      <p className="form-help">{salida.cupos} cupos disponibles · {formatearFechaHora(salida.fechaHora)} (Lima)</p>
+      {errorServidor && <p className="error-message" role="alert">{errorServidor}</p>}
+      {error && <p className="error-message" role="alert">{error}</p>}
       <div className="form-grid">
         <label>Nombre completo<input name="nombre" value={formulario.nombre} onChange={cambiar} /></label>
         <label>DNI<input name="dni" inputMode="numeric" maxLength="8" value={formulario.dni} onChange={cambiar} /></label>

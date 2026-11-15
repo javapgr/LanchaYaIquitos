@@ -2,7 +2,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Filtros from '../components/Filtros';
 import ReservaForm from '../components/ReservaForm';
 import SalidaCard from '../components/SalidaCard';
+import { useToast } from '../components/Toast';
 import { crearReserva, obtenerDestinos, obtenerSalidas } from '../services/api';
+import { borrarFiltros, guardarFiltros, leerFiltrosGuardados } from '../utils/filtrosStorage';
 
 const FILTROS_INICIALES = {
   q: '', destino: '', fecha: '', tipo: '', precioMin: '', precioMax: '',
@@ -11,15 +13,18 @@ const FILTROS_INICIALES = {
 const POR_PAGINA = 6;
 
 function Home() {
+  const toast = useToast();
+  const [filtrosIniciales] = useState(() => leerFiltrosGuardados(FILTROS_INICIALES));
   const [salidas, setSalidas] = useState([]);
   const [destinos, setDestinos] = useState([]);
-  const [filtros, setFiltros] = useState(FILTROS_INICIALES);
-  const [busqueda, setBusqueda] = useState('');
+  const [filtros, setFiltros] = useState(filtrosIniciales);
+  const [busqueda, setBusqueda] = useState(filtrosIniciales.q);
   const [pagina, setPagina] = useState(1);
   const [paginacion, setPaginacion] = useState({ total: 0, totalPaginas: 1 });
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
   const [salidaReservando, setSalidaReservando] = useState(null);
+  const [errorReserva, setErrorReserva] = useState('');
   const [codigoReserva, setCodigoReserva] = useState('');
 
   const cargarSalidas = useCallback(async () => {
@@ -47,14 +52,33 @@ function Home() {
   useEffect(() => {
     const temporizador = setTimeout(() => {
       setPagina(1);
-      setFiltros((actuales) => ({ ...actuales, q: busqueda }));
+      setFiltros((actuales) => {
+        if (actuales.q === busqueda) return actuales;
+        const siguientes = { ...actuales, q: busqueda };
+        guardarFiltros(siguientes);
+        return siguientes;
+      });
     }, 300);
     return () => clearTimeout(temporizador);
   }, [busqueda]);
 
   function cambiarFiltro(event) {
-    setFiltros({ ...filtros, [event.target.name]: event.target.value });
+    const siguientes = { ...filtros, [event.target.name]: event.target.value };
+    setFiltros(siguientes);
+    guardarFiltros(siguientes);
     setPagina(1);
+  }
+
+  function limpiarFiltros() {
+    borrarFiltros();
+    setBusqueda('');
+    setFiltros(FILTROS_INICIALES);
+    setPagina(1);
+  }
+
+  function abrirReserva(salida) {
+    setErrorReserva('');
+    setSalidaReservando(salida);
   }
 
   function irAListado() {
@@ -62,13 +86,16 @@ function Home() {
   }
 
   async function reservar(datos) {
+    setErrorReserva('');
     try {
       const reserva = await crearReserva(salidaReservando.id, datos);
       setCodigoReserva(reserva.codigo);
       setSalidaReservando(null);
+      toast.success(`Reserva ${reserva.codigo} creada`);
       await cargarSalidas();
     } catch (requestError) {
-      setError(requestError.message);
+      setErrorReserva(requestError.message);
+      toast.error(requestError.message);
     }
   }
 
@@ -97,11 +124,7 @@ function Home() {
             onChange={cambiarFiltro}
             busqueda={busqueda}
             onSearchChange={(event) => setBusqueda(event.target.value)}
-            onLimpiar={() => {
-              setBusqueda('');
-              setFiltros(FILTROS_INICIALES);
-              setPagina(1);
-            }}
+            onLimpiar={limpiarFiltros}
           />
           {cargando && <p className="status">Cargando salidas...</p>}
           {!cargando && error && <p className="status error-message">{error}</p>}
@@ -115,7 +138,7 @@ function Home() {
                   <SalidaCard
                     key={salida.id}
                     salida={salida}
-                    onReservar={setSalidaReservando}
+                    onReservar={abrirReserva}
                   />
                 ))}
               </div>
@@ -149,6 +172,7 @@ function Home() {
               salida={salidaReservando}
               onReservar={reservar}
               onCancelar={() => setSalidaReservando(null)}
+              errorServidor={errorReserva}
             />
           </div>
         </div>

@@ -1,11 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import ConfirmModal from '../components/ConfirmModal';
 import Filtros from '../components/Filtros';
 import SalidaForm from '../components/SalidaForm';
+import { useToast } from '../components/Toast';
 import {
   actualizarEstadoSalida, actualizarSalida, crearSalida, eliminarSalida,
   obtenerDestinos, obtenerEmpresas, obtenerSalidas,
 } from '../services/api';
 import { claseCupos, etiquetaCupos } from '../utils/cupos';
+import { formatearFechaHora } from '../utils/fechas';
 
 const POR_PAGINA = 5;
 const FILTROS_INICIALES = {
@@ -13,15 +16,8 @@ const FILTROS_INICIALES = {
   rango: '', orden: 'fecha', dir: 'asc',
 };
 
-function formatearFecha(fechaHora) {
-  const fecha = new Date(fechaHora);
-  return `${fecha.toLocaleDateString('es-PE')} · ${fecha.toLocaleTimeString('es-PE', {
-    hour: '2-digit',
-    minute: '2-digit',
-  })}`;
-}
-
 function Admin() {
+  const toast = useToast();
   const [salidas, setSalidas] = useState([]);
   const [destinos, setDestinos] = useState([]);
   const [empresas, setEmpresas] = useState([]);
@@ -33,6 +29,8 @@ function Admin() {
   const [error, setError] = useState('');
   const [salidaEditando, setSalidaEditando] = useState(null);
   const [formularioAbierto, setFormularioAbierto] = useState(false);
+  const [errorFormulario, setErrorFormulario] = useState('');
+  const [salidaEliminando, setSalidaEliminando] = useState(null);
 
   const cargarSalidas = useCallback(async () => {
     setCargando(true);
@@ -64,6 +62,13 @@ function Admin() {
   function cerrarFormulario() {
     setSalidaEditando(null);
     setFormularioAbierto(false);
+    setErrorFormulario('');
+  }
+
+  function abrirNuevaSalida() {
+    setSalidaEditando(null);
+    setErrorFormulario('');
+    setFormularioAbierto(true);
   }
 
   function cambiarFiltro(event) {
@@ -73,43 +78,50 @@ function Admin() {
 
   function editar(salida) {
     setSalidaEditando(salida);
+    setErrorFormulario('');
     setFormularioAbierto(true);
   }
 
   async function guardar(salida) {
+    setErrorFormulario('');
     try {
       if (salidaEditando) await actualizarSalida(salidaEditando.id, salida);
       else await crearSalida(salida);
+      toast.success(salidaEditando ? 'Salida actualizada correctamente' : 'Salida registrada correctamente');
       cerrarFormulario();
       await cargarSalidas();
     } catch (requestError) {
-      setError(requestError.message);
+      setErrorFormulario(requestError.message);
+      toast.error(requestError.message);
     }
   }
 
-  async function eliminar(id) {
-    if (!window.confirm('¿Deseas eliminar esta salida?')) return;
+  async function eliminarSalidaConfirmada() {
+    if (!salidaEliminando) return;
     try {
-      await eliminarSalida(id);
+      await eliminarSalida(salidaEliminando.id);
+      toast.success('Salida eliminada correctamente');
+      setSalidaEliminando(null);
       await cargarSalidas();
     } catch (requestError) {
-      setError(requestError.message);
+      setSalidaEliminando(null);
+      toast.error(requestError.message);
     }
-
   }
 
   async function cambiarEstado(id, estado) {
     try {
       await actualizarEstadoSalida(id, estado);
+      toast.success(`Estado actualizado a ${estado}`);
       await cargarSalidas();
     } catch (requestError) {
-      setError(requestError.message);
+      toast.error(requestError.message);
     }
   }
 
   return (
-    <main className="container admin-page">
-      <button type="button" className="button primary open-form-button" onClick={() => setFormularioAbierto(true)}>
+    <>
+      <button type="button" className="button primary open-form-button" onClick={abrirNuevaSalida}>
         Registrar salida
       </button>
       {formularioAbierto && (
@@ -127,9 +139,19 @@ function Admin() {
               empresas={empresas}
               onGuardar={guardar}
               onCancelar={cerrarFormulario}
+              errorServidor={errorFormulario}
             />
           </div>
         </div>
+      )}
+      {salidaEliminando && (
+        <ConfirmModal
+          titulo="Eliminar salida"
+          mensaje={`¿Deseas eliminar la salida a ${salidaEliminando.destino}? Esta acción no se puede deshacer.`}
+          confirmarTexto="Eliminar"
+          onConfirmar={eliminarSalidaConfirmada}
+          onCancelar={() => setSalidaEliminando(null)}
+        />
       )}
       <section className="listing">
         <div className="section-title"><h2>Salidas registradas</h2><span>{paginacion.total} resultados</span></div>
@@ -169,7 +191,7 @@ function Admin() {
                   <span data-label="Destino" role="cell">{salida.destino}</span>
                   <span data-label="Empresa" role="cell">{salida.empresa}</span>
                   <span data-label="Tipo" role="cell">{salida.tipo}</span>
-                  <span data-label="Fecha" role="cell">{formatearFecha(salida.fechaHora)}</span>
+                  <span data-label="Fecha" role="cell">{formatearFechaHora(salida.fechaHora)}</span>
                   <span data-label="Puerto" role="cell">{salida.puerto}</span>
                   <span data-label="Precio" role="cell">S/ {Number(salida.precio).toFixed(2)}</span>
                   <span data-label="Cupos" role="cell">
@@ -187,7 +209,7 @@ function Admin() {
                   </span>
                   <span data-label="Acciones" role="cell" className="admin-list-actions">
                     <button type="button" className="button secondary" onClick={() => editar(salida)}>Editar</button>
-                    <button type="button" className="button danger" onClick={() => eliminar(salida.id)}>Eliminar</button>
+                    <button type="button" className="button danger" onClick={() => setSalidaEliminando(salida)}>Eliminar</button>
                   </span>
                 </div>
               ))}
@@ -216,7 +238,7 @@ function Admin() {
           </>
         )}
       </section>
-    </main>
+    </>
   );
 }
 

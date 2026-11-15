@@ -7,7 +7,7 @@ const inicial = {
   puertoBase: '',
 };
 
-function EmpresaForm({ empresa, onGuardar, onCancelar }) {
+function EmpresaForm({ empresa, onGuardar, onCancelar, errorServidor = '' }) {
   const [formulario, setFormulario] = useState(inicial);
   const [error, setError] = useState('');
 
@@ -40,7 +40,8 @@ function EmpresaForm({ empresa, onGuardar, onCancelar }) {
   return (
     <form className="form-panel" onSubmit={enviar}>
       <h2>{empresa ? 'Editar empresa' : 'Registrar empresa'}</h2>
-      {error && <p className="error-message">{error}</p>}
+      {errorServidor && <p className="error-message" role="alert">{errorServidor}</p>}
+      {error && <p className="error-message" role="alert">{error}</p>}
       <div className="form-grid">
         <label>Razón social<input name="razonSocial" value={formulario.razonSocial} onChange={cambiar} /></label>
         <label>RUC<input name="ruc" inputMode="numeric" maxLength="11" value={formulario.ruc} onChange={cambiar} /></label>

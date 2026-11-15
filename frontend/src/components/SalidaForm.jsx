@@ -5,7 +5,7 @@ const inicial = {
   fechaHora: '', duracionHoras: '', precio: '', capacidad: '', cupos: '',
 };
 
-function SalidaForm({ salida, empresas, onGuardar, onCancelar }) {
+function SalidaForm({ salida, empresas, onGuardar, onCancelar, errorServidor = '' }) {
   const [formulario, setFormulario] = useState(inicial);
   const [error, setError] = useState('');
 
@@ -48,7 +48,8 @@ function SalidaForm({ salida, empresas, onGuardar, onCancelar }) {
   return (
     <form className="form-panel" onSubmit={enviar}>
       <h2>{salida ? 'Editar salida' : 'Registrar salida'}</h2>
-      {error && <p className="error-message">{error}</p>}
+      {errorServidor && <p className="error-message" role="alert">{errorServidor}</p>}
+      {error && <p className="error-message" role="alert">{error}</p>}
       <div className="form-grid">
         {[
           ['embarcacion', 'Embarcación'], ['destino', 'Destino'], ['puerto', 'Puerto'],

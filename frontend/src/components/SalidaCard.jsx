@@ -1,40 +1,39 @@
 import React from 'react';
-import { claseCupos, etiquetaCupos } from '../utils/cupos';
+import { Link } from 'react-router-dom';
+import BarraCupos from './BarraCupos';
+import { formatearFecha, formatearHora } from '../utils/fechas';
 
 function claseEstado(estado) {
   return estado === 'zarpó' ? 'zarpo' : estado;
 }
 
 function SalidaCard({ salida, onReservar }) {
-  const fecha = new Date(salida.fechaHora);
   const noAceptaReservas = ['zarpó', 'zarpo', 'cancelada'].includes(salida.estado)
     || salida.cupos <= 0;
 
   return (
-    <article className="card">
+    <article className="card" data-testid="salida-card">
       <div className="card-header">
         <span className={`tag tag-${salida.tipo}`}>{salida.tipo}</span>
         <span className={`estado estado-${claseEstado(salida.estado)}`}>{salida.estado}</span>
-        <span className={`cupos ${claseCupos(salida.cupos)}`} title={etiquetaCupos(salida.cupos)}>
-          {salida.cupos} cupos · {etiquetaCupos(salida.cupos)}
-        </span>
       </div>
-      <h3>{salida.destino}</h3>
+      <h3>
+        <Link to={`/salidas/${salida.id}`} className="card-title-link">{salida.destino}</Link>
+      </h3>
       <p className="empresa">{salida.empresa} · {salida.embarcacion}</p>
       <dl className="details">
         <div>
           <dt>Salida</dt>
-          <dd>
-            {fecha.toLocaleDateString('es-PE')} ·{' '}
-            {fecha.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })}
-          </dd>
+          <dd>{formatearFecha(salida.fechaHora)} · {formatearHora(salida.fechaHora)}</dd>
         </div>
         <div><dt>Puerto</dt><dd>{salida.puerto}</dd></div>
         <div><dt>Duración</dt><dd>{salida.duracionHoras} horas</dd></div>
       </dl>
-      <strong className="price">S/ {salida.precio.toFixed(2)}</strong>
-      {onReservar && (
-        <div className="card-actions">
+      <BarraCupos capacidad={salida.capacidad} cupos={salida.cupos} />
+      <strong className="price">S/ {Number(salida.precio).toFixed(2)}</strong>
+      <div className="card-actions">
+        <Link to={`/salidas/${salida.id}`} className="button secondary">Ver detalle</Link>
+        {onReservar && (
           <button
             type="button"
             className="button primary"
@@ -43,8 +42,8 @@ function SalidaCard({ salida, onReservar }) {
           >
             {salida.cupos > 0 ? 'Reservar' : 'Agotado'}
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </article>
   );
 }

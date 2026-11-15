@@ -1,15 +1,20 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import ConfirmModal from '../components/ConfirmModal';
 import EmpresaForm from '../components/EmpresaForm';
+import { useToast } from '../components/Toast';
 import {
   actualizarEmpresa, crearEmpresa, eliminarEmpresa, obtenerEmpresas,
 } from '../services/api';
 
 function Empresas() {
+  const toast = useToast();
   const [empresas, setEmpresas] = useState([]);
   const [empresaEditando, setEmpresaEditando] = useState(null);
   const [formularioAbierto, setFormularioAbierto] = useState(false);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
+  const [errorFormulario, setErrorFormulario] = useState('');
+  const [empresaEliminando, setEmpresaEliminando] = useState(null);
 
   const cargarEmpresas = useCallback(async () => {
     setCargando(true);
@@ -28,32 +33,45 @@ function Empresas() {
   function cerrarFormulario() {
     setEmpresaEditando(null);
     setFormularioAbierto(false);
+    setErrorFormulario('');
+  }
+
+  function abrirNuevaEmpresa() {
+    setEmpresaEditando(null);
+    setErrorFormulario('');
+    setFormularioAbierto(true);
   }
 
   async function guardar(empresa) {
+    setErrorFormulario('');
     try {
       if (empresaEditando) await actualizarEmpresa(empresaEditando.id, empresa);
       else await crearEmpresa(empresa);
+      toast.success(empresaEditando ? 'Empresa actualizada correctamente' : 'Empresa registrada correctamente');
       cerrarFormulario();
       await cargarEmpresas();
     } catch (requestError) {
-      setError(requestError.message);
+      setErrorFormulario(requestError.message);
+      toast.error(requestError.message);
     }
   }
 
-  async function eliminar(empresa) {
-    if (!window.confirm(`¿Dar de baja a ${empresa.razonSocial}?`)) return;
+  async function eliminarConfirmada() {
+    if (!empresaEliminando) return;
     try {
-      await eliminarEmpresa(empresa.id);
+      await eliminarEmpresa(empresaEliminando.id);
+      toast.success('Empresa dada de baja correctamente');
+      setEmpresaEliminando(null);
       await cargarEmpresas();
     } catch (requestError) {
-      setError(requestError.message);
+      setEmpresaEliminando(null);
+      toast.error(requestError.message);
     }
   }
 
   return (
-    <main className="container admin-page">
-      <button type="button" className="button primary open-form-button" onClick={() => setFormularioAbierto(true)}>
+    <>
+      <button type="button" className="button primary open-form-button" onClick={abrirNuevaEmpresa}>
         Registrar empresa
       </button>
       {formularioAbierto && (
@@ -62,9 +80,23 @@ function Empresas() {
         }}>
           <div className="modal">
             <button type="button" className="close-button" aria-label="Cerrar formulario" onClick={cerrarFormulario}>×</button>
-            <EmpresaForm empresa={empresaEditando} onGuardar={guardar} onCancelar={cerrarFormulario} />
+            <EmpresaForm
+              empresa={empresaEditando}
+              onGuardar={guardar}
+              onCancelar={cerrarFormulario}
+              errorServidor={errorFormulario}
+            />
           </div>
         </div>
+      )}
+      {empresaEliminando && (
+        <ConfirmModal
+          titulo="Dar de baja empresa"
+          mensaje={`¿Dar de baja a ${empresaEliminando.razonSocial}? No se borrarán sus datos históricos.`}
+          confirmarTexto="Dar de baja"
+          onConfirmar={eliminarConfirmada}
+          onCancelar={() => setEmpresaEliminando(null)}
+        />
       )}
       <section className="listing">
         <div className="section-title"><h2>Empresas activas</h2><span>{empresas.length} empresas</span></div>
@@ -91,16 +123,17 @@ function Empresas() {
                 <span data-label="Acciones" role="cell" className="admin-list-actions">
                   <button type="button" className="button secondary" onClick={() => {
                     setEmpresaEditando(empresa);
+                    setErrorFormulario('');
                     setFormularioAbierto(true);
                   }}>Editar</button>
-                  <button type="button" className="button danger" onClick={() => eliminar(empresa)}>Dar de baja</button>
+                  <button type="button" className="button danger" onClick={() => setEmpresaEliminando(empresa)}>Dar de baja</button>
                 </span>
               </div>
             ))}
           </div>
         )}
       </section>
-    </main>
+    </>
   );
 }
 

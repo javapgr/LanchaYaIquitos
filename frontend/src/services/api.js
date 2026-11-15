@@ -13,10 +13,17 @@ async function request(path, options = {}) {
 
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
-    throw new Error(body.mensaje || 'No se pudo completar la solicitud');
+    const error = new Error(body.mensaje || 'No se pudo completar la solicitud');
+    error.status = response.status;
+    error.body = body;
+    throw error;
   }
 
   return response.status === 204 ? null : response.json();
+}
+
+export function obtenerSalida(id) {
+  return request(`/salidas/${encodeURIComponent(id)}`);
 }
 
 export function obtenerSalidas(filtros = {}) {

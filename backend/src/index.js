@@ -5,6 +5,7 @@ const cors = require('cors');
 const rutasSalidas = require('./routes/salidas');
 const rutasEmpresas = require('./routes/empresas');
 const rutasReservas = require('./routes/reservas');
+const rutasEstadisticas = require('./routes/estadisticas');
 const logger = require('./middleware/logger');
 const { errorHandler } = require('./middleware/error-handler');
 
@@ -24,6 +25,7 @@ app.use(express.json());
 app.use('/api', rutasSalidas);
 app.use('/api', rutasEmpresas);
 app.use('/api', rutasReservas);
+app.use('/api', rutasEstadisticas);
 
 app.get('/api/health', (req, res) => {
   res.json({ ok: true });

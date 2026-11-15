@@ -170,6 +170,21 @@ function crearTablaSalidas() {
   `);
 }
 
+function fechaHoraRelativa(diasDesdeHoy, horaMinutos) {
+  const base = new Date();
+  base.setHours(0, 0, 0, 0);
+  base.setDate(base.getDate() + Number(diasDesdeHoy));
+  const yyyy = base.getFullYear();
+  const mm = String(base.getMonth() + 1).padStart(2, '0');
+  const dd = String(base.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}T${horaMinutos}`;
+}
+
+function horaDesdeSeed(fechaHora) {
+  const match = String(fechaHora || '').match(/T(\d{2}:\d{2})/);
+  return match ? match[1] : '08:00';
+}
+
 function seedSiVacio() {
   const { total } = db.prepare('SELECT COUNT(*) AS total FROM salidas').get();
   if (total > 0 || !fs.existsSync(seedPath)) return;
@@ -200,6 +215,9 @@ function seedSiVacio() {
         empresasPorNombre.set(fila.empresa, Number(resultado.lastInsertRowid));
       }
 
+      const diasDesdeHoy = Number.isInteger(fila.diasDesdeHoy) ? fila.diasDesdeHoy : 0;
+      const fechaHora = fechaHoraRelativa(diasDesdeHoy, horaDesdeSeed(fila.fechaHora));
+
       insertarSalida.run(
         fila.id,
         empresasPorNombre.get(fila.empresa),
@@ -207,7 +225,7 @@ function seedSiVacio() {
         fila.tipo,
         fila.destino,
         fila.puerto,
-        normalizarFechaHora(fila.fechaHora),
+        normalizarFechaHora(fechaHora),
         fila.duracionHoras,
         fila.precio,
         fila.cupos,

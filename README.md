@@ -2,7 +2,7 @@
 
 **LANCHA YA!** concentra las salidas fluviales en un solo lugar: destino, hora, precio, puerto y cupos.
 
-Los pasajeros consultan y filtran. El administrador registra, edita y elimina salidas.
+Los pasajeros consultan y filtran. El administrador registra, edita y elimina salidas, gestiona empresas, reservas y ve estadísticas.
 
 **Integrantes:**
 Dev-Danilo Said Bardales Panduro
@@ -23,7 +23,7 @@ Dev-Danilo Said Bardales Panduro
 
 | Capa | Tecnología |
 |------|------------|
-| Frontend | React 18 + Vite + React Router |
+| Frontend | React 18 + Vite + React Router + Recharts |
 | Backend | Node.js 22 + Express 4 |
 | Base de datos | SQLite (`node:sqlite`) |
 | Deploy | Vercel (frontend) + Render (API) |
@@ -36,14 +36,28 @@ Dev-Danilo Said Bardales Panduro
 - Filtrar por destino, fecha y tipo (`lancha`, `rapido`, `deslizador`)
 - Buscar por empresa o embarcación
 - Ver cupos con color (verde / amarillo / rojo)
-- Admin: crear, editar y eliminar salidas
+- Reservar cupos y consultar reserva por código
+- Admin: crear, editar y eliminar salidas; cambiar estado
 - Admin: gestionar empresas activas y asociarlas a las salidas
+- Admin: panel de estadísticas (`/admin/panel`)
 
 ---
 
 ## Cómo correrlo en local
 
 Necesitas **Node.js 22+**.
+
+### Variables de entorno (backend)
+
+Copia `backend/.env.example` a `backend/.env`:
+
+| Variable | Descripción |
+|----------|-------------|
+| `PORT` | Puerto del API (por defecto `3000`) |
+| `DATA_PATH` | Ruta opcional al archivo SQLite. Si está vacío, usa `backend/src/data/salidas.db` |
+| `CORS_ORIGIN` | Orígenes permitidos (ej. `http://localhost:5173`) |
+
+Frontend: `frontend/.env.example` → `VITE_API_URL` (por defecto `http://localhost:3000/api`).
 
 ### 1. Backend
 
@@ -55,12 +69,6 @@ npm run dev
 
 API en `http://localhost:3000`
 
-La base SQLite usa `DATA_PATH` como ruta opcional al archivo. Si `salidas` ya
-tiene registros, el seed no se vuelve a ejecutar. Para refrescar una base local
-existente, detén el backend, respalda el archivo indicado por `DATA_PATH` y
-elimínalo; al iniciar nuevamente se creará y sembrará desde
-`backend/src/data/salidas.json`.
-
 ### 2. Frontend
 
 ```bash
@@ -69,9 +77,26 @@ npm install
 npm run dev
 ```
 
-App en `http://localhost:5173` (consume `http://localhost:3000/api` por defecto).
+App en `http://localhost:5173`.
 
-Si los puertos 3000 o 5173 quedan ocupados por procesos node viejos, ejecuta desde la raíz `powershell -ExecutionPolicy Bypass -File scripts/liberar-puertos.ps1`: muestra qué proceso los usa y cierra solo los que son node.
+Si los puertos 3000 o 5173 quedan ocupados, desde la raíz:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/liberar-puertos.ps1
+```
+
+### Reiniciar el seed
+
+La base SQLite se crea sola. Si la tabla `salidas` ya tiene registros, el seed **no** se vuelve a ejecutar.
+
+Para sembrar de nuevo:
+
+1. Detén el backend.
+2. Respaldá el archivo de `DATA_PATH` (o `backend/src/data/salidas.db`) si lo necesitas.
+3. Elimina ese archivo (y sus `-wal` / `-shm` si existen).
+4. Vuelve a iniciar el backend: se crea la BD y se siembra desde `backend/src/data/salidas.json`.
+
+Las fechas del seed son **relativas a la fecha actual** (`diasDesdeHoy`): incluye salidas de hoy, mañana y los días siguientes, para que el filtro por fecha de hoy funcione en una BD nueva.
 
 ---
 
@@ -80,7 +105,9 @@ Si los puertos 3000 o 5173 quedan ocupados por procesos node viejos, ejecuta des
 ```
 LanchaYaIquitos/
 ├── backend/     # API REST + SQLite
-├── frontend/    # React (Home + Admin)
+├── frontend/    # React (Home + Admin + Panel)
+├── docs/        # Colección Postman/Thunder
+├── scripts/
 ├── render.yaml
 └── README.md
 ```
@@ -89,6 +116,11 @@ Rutas web:
 
 - `/` — consulta pública
 - `/admin` — gestión de salidas
+- `/admin/panel` — estadísticas
+- `/empresas` — gestión de empresas
+- `/reservas` — consulta de reserva por código
+
+Colección HTTP: importa `docs/LanchaYa.postman_collection.json` en Postman o Thunder Client.
 
 ---
 
@@ -101,11 +133,11 @@ Rutas web:
 | POST | `/api/salidas` | Crear |
 | PUT | `/api/salidas/:id` | Actualizar |
 | PATCH | `/api/salidas/:id/estado` | Cambiar estado |
+| DELETE | `/api/salidas/:id` | Eliminar |
 | POST | `/api/salidas/:id/reservas` | Crear reserva |
 | GET | `/api/salidas/:id/reservas` | Listar reservas de una salida |
 | DELETE | `/api/reservas/:id` | Cancelar reserva y devolver cupos |
 | GET | `/api/reservas/:codigo` | Consultar reserva por código |
-| DELETE | `/api/salidas/:id` | Eliminar |
 | GET | `/api/destinos` | Destinos únicos |
 | GET | `/api/empresas` | Empresas activas |
 | GET | `/api/empresas/:id` | Detalle de empresa activa |
@@ -113,17 +145,16 @@ Rutas web:
 | PUT | `/api/empresas/:id` | Actualizar empresa |
 | DELETE | `/api/empresas/:id` | Dar de baja empresa |
 | GET | `/api/empresas/:id/salidas` | Salidas de una empresa |
+| GET | `/api/estadisticas` | Totales, por destino/tipo y cupos |
 | GET | `/api/health` | Estado del servidor |
 
-La base SQLite se crea sola y se siembra con 12 salidas desde `backend/src/data/salidas.json`.
-Las empresas antiguas se migran con RUC temporales `20000000001`,
-`20000000002`, etc. Estos RUC son editables, pero permanecen reservados cuando
-una empresa se da de baja. Una empresa con salidas futuras responde `409` al
-intentar darla de baja.
-Los estados válidos de una salida son `programada`, `abordando`, `zarpó`,
-`zarpo` y `cancelada`; `zarpo` se normaliza a `zarpó`.
-Las reservas generan códigos únicos con formato `LY-XXXXX` y no requieren
-pago. Las salidas canceladas o zarpadas no aceptan reservas.
+Errores de negocio usan `{ "error": true, "mensaje": "..." }` (400 / 404 / 409 según el caso).
+
+La base SQLite se siembra con 12 salidas desde `backend/src/data/salidas.json`.
+Las empresas antiguas se migran con RUC temporales `20000000001`, etc.
+Una empresa con salidas futuras responde `409` al intentar darla de baja.
+Estados válidos: `programada`, `abordando`, `zarpó`, `zarpo`, `cancelada` (`zarpo` → `zarpó`).
+Las reservas generan códigos `LY-XXXXX`. Salidas canceladas o zarpadas no aceptan reservas.
 
 ---
 

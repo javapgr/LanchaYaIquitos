@@ -3,6 +3,7 @@ import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom';
 import Admin from './pages/Admin';
 import Empresas from './pages/Empresas';
 import Home from './pages/Home';
+import Panel from './pages/Panel';
 import ReservaConsulta from './pages/ReservaConsulta';
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
             <nav aria-label="Navegación principal">
               <NavLink to="/" end>Consultar salidas</NavLink>
               <NavLink to="/admin">Administración</NavLink>
+              <NavLink to="/admin/panel">Panel</NavLink>
               <NavLink to="/empresas">Empresas</NavLink>
               <NavLink to="/reservas">Consultar reserva</NavLink>
             </nav>
@@ -27,6 +29,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/panel" element={<Panel />} />
             <Route path="/empresas" element={<Empresas />} />
             <Route path="/reservas" element={<ReservaConsulta />} />
           </Routes>
@@ -43,6 +46,7 @@ function App() {
             <nav className="footer-nav" aria-label="Enlaces del pie">
               <NavLink to="/" end>Consultar salidas</NavLink>
               <NavLink to="/admin">Administración</NavLink>
+              <NavLink to="/admin/panel">Panel</NavLink>
               <NavLink to="/empresas">Empresas</NavLink>
               <NavLink to="/reservas">Consultar reserva</NavLink>
             </nav>

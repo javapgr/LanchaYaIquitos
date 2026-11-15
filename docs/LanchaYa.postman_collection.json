@@ -1,0 +1,371 @@
+{
+  "info": {
+    "name": "LanchaYa Iquitos API",
+    "description": "Colección Postman/Thunder Client con todos los endpoints actuales.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api" },
+    { "key": "salidaId", "value": "1" },
+    { "key": "empresaId", "value": "1" },
+    { "key": "reservaId", "value": "1" },
+    { "key": "codigoReserva", "value": "LY-ABCDE" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/health"
+      }
+    },
+    {
+      "name": "Destinos",
+      "item": [
+        {
+          "name": "GET destinos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/destinos"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Salidas",
+      "item": [
+        {
+          "name": "GET salidas (filtros)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/salidas?destino=Nauta&fecha=&tipo=rapido&q=",
+              "host": ["{{baseUrl}}"],
+              "path": ["salidas"],
+              "query": [
+                { "key": "destino", "value": "Nauta" },
+                { "key": "fecha", "value": "" },
+                { "key": "tipo", "value": "rapido" },
+                { "key": "q", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET salidas/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/salidas/{{salidaId}}"
+          }
+        },
+        {
+          "name": "GET salidas/:id 404",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/salidas/999999"
+          }
+        },
+        {
+          "name": "POST salidas",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"empresaId\": 1,\n  \"embarcacion\": \"Nueva Estrella\",\n  \"tipo\": \"rapido\",\n  \"destino\": \"Nauta\",\n  \"puerto\": \"Puerto Henry\",\n  \"fechaHora\": \"2030-01-15T08:00\",\n  \"duracionHoras\": 2,\n  \"precio\": 25,\n  \"capacidad\": 40,\n  \"cupos\": 40\n}"
+            },
+            "url": "{{baseUrl}}/salidas"
+          }
+        },
+        {
+          "name": "POST salidas 400",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"empresaId\": 1,\n  \"embarcacion\": \"\",\n  \"tipo\": \"avion\",\n  \"destino\": \"Nauta\",\n  \"puerto\": \"Puerto Henry\",\n  \"fechaHora\": \"fecha-invalida\",\n  \"duracionHoras\": 0,\n  \"precio\": -1,\n  \"capacidad\": 0,\n  \"cupos\": -5\n}"
+            },
+            "url": "{{baseUrl}}/salidas"
+          }
+        },
+        {
+          "name": "PUT salidas/:id",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"empresaId\": 1,\n  \"embarcacion\": \"Don José II\",\n  \"tipo\": \"rapido\",\n  \"destino\": \"Nauta\",\n  \"puerto\": \"Puerto Productores\",\n  \"fechaHora\": \"2030-01-16T06:30\",\n  \"duracionHoras\": 2,\n  \"precio\": 22,\n  \"capacidad\": 30,\n  \"cupos\": 28\n}"
+            },
+            "url": "{{baseUrl}}/salidas/{{salidaId}}"
+          }
+        },
+        {
+          "name": "PUT salidas/:id 404",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"empresaId\": 1,\n  \"embarcacion\": \"X\",\n  \"tipo\": \"lancha\",\n  \"destino\": \"Nauta\",\n  \"puerto\": \"Puerto Henry\",\n  \"fechaHora\": \"2030-01-16T06:30\",\n  \"duracionHoras\": 2,\n  \"precio\": 22,\n  \"capacidad\": 30,\n  \"cupos\": 28\n}"
+            },
+            "url": "{{baseUrl}}/salidas/999999"
+          }
+        },
+        {
+          "name": "PATCH salidas/:id/estado",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"abordando\"\n}"
+            },
+            "url": "{{baseUrl}}/salidas/{{salidaId}}/estado"
+          }
+        },
+        {
+          "name": "PATCH salidas/:id/estado 400",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"volando\"\n}"
+            },
+            "url": "{{baseUrl}}/salidas/{{salidaId}}/estado"
+          }
+        },
+        {
+          "name": "DELETE salidas/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/salidas/{{salidaId}}"
+          }
+        },
+        {
+          "name": "DELETE salidas/:id 404",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/salidas/999999"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Empresas",
+      "item": [
+        {
+          "name": "GET empresas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/empresas"
+          }
+        },
+        {
+          "name": "GET empresas/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/empresas/{{empresaId}}"
+          }
+        },
+        {
+          "name": "GET empresas/:id 404",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/empresas/999999"
+          }
+        },
+        {
+          "name": "POST empresas",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"razonSocial\": \"Nueva Fluvial SAC\",\n  \"ruc\": \"20123456789\",\n  \"telefono\": \"965432100\",\n  \"puertoBase\": \"Puerto Henry\"\n}"
+            },
+            "url": "{{baseUrl}}/empresas"
+          }
+        },
+        {
+          "name": "POST empresas 400",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"razonSocial\": \"\",\n  \"ruc\": \"123\",\n  \"telefono\": \"\",\n  \"puertoBase\": \"\"\n}"
+            },
+            "url": "{{baseUrl}}/empresas"
+          }
+        },
+        {
+          "name": "POST empresas 409 (RUC duplicado)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"razonSocial\": \"Duplicada\",\n  \"ruc\": \"20123456789\",\n  \"telefono\": \"965432100\",\n  \"puertoBase\": \"Puerto Henry\"\n}"
+            },
+            "url": "{{baseUrl}}/empresas"
+          }
+        },
+        {
+          "name": "PUT empresas/:id",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"razonSocial\": \"Nueva Fluvial SAC\",\n  \"ruc\": \"20123456789\",\n  \"telefono\": \"965432111\",\n  \"puertoBase\": \"Puerto Masusa\"\n}"
+            },
+            "url": "{{baseUrl}}/empresas/{{empresaId}}"
+          }
+        },
+        {
+          "name": "DELETE empresas/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/empresas/{{empresaId}}"
+          }
+        },
+        {
+          "name": "DELETE empresas/:id 409 (salidas futuras)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/empresas/{{empresaId}}"
+          }
+        },
+        {
+          "name": "GET empresas/:id/salidas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/empresas/{{empresaId}}/salidas"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reservas",
+      "item": [
+        {
+          "name": "POST salidas/:id/reservas",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ana Pérez\",\n  \"dni\": \"12345678\",\n  \"telefono\": \"987654321\",\n  \"cantidad\": 2\n}"
+            },
+            "url": "{{baseUrl}}/salidas/{{salidaId}}/reservas"
+          }
+        },
+        {
+          "name": "POST salidas/:id/reservas 400",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"\",\n  \"dni\": \"12\",\n  \"telefono\": \"\",\n  \"cantidad\": 0\n}"
+            },
+            "url": "{{baseUrl}}/salidas/{{salidaId}}/reservas"
+          }
+        },
+        {
+          "name": "POST salidas/:id/reservas 404",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ana Pérez\",\n  \"dni\": \"12345678\",\n  \"telefono\": \"987654321\",\n  \"cantidad\": 2\n}"
+            },
+            "url": "{{baseUrl}}/salidas/999999/reservas"
+          }
+        },
+        {
+          "name": "POST salidas/:id/reservas 409 (sin cupos / estado)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ana Pérez\",\n  \"dni\": \"12345678\",\n  \"telefono\": \"987654321\",\n  \"cantidad\": 9999\n}"
+            },
+            "url": "{{baseUrl}}/salidas/{{salidaId}}/reservas"
+          }
+        },
+        {
+          "name": "GET salidas/:id/reservas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/salidas/{{salidaId}}/reservas"
+          }
+        },
+        {
+          "name": "GET reservas/:codigo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/reservas/{{codigoReserva}}"
+          }
+        },
+        {
+          "name": "GET reservas/:codigo 404",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/reservas/LY-XXXXX"
+          }
+        },
+        {
+          "name": "DELETE reservas/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/reservas/{{reservaId}}"
+          }
+        },
+        {
+          "name": "DELETE reservas/:id 404",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/reservas/999999"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Estadísticas",
+      "item": [
+        {
+          "name": "GET estadisticas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/estadisticas"
+          }
+        }
+      ]
+    }
+  ]
+}

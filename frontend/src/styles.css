@@ -32,6 +32,26 @@ body {
   width: 100%;
 }
 
+.page-transition {
+  animation: page-enter .38s ease;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-transition { animation: none; }
+  nav a { transition: none; }
+}
+
 .site-footer {
   margin-top: auto;
   background: var(--rio);
@@ -151,11 +171,14 @@ nav a {
   font-weight: 600;
   padding: 8px 12px;
   border-radius: 999px;
+  transition: color .22s ease, background-color .22s ease, transform .22s ease;
 }
+nav a:hover { color: var(--verde); }
 nav a.active {
   color: var(--blanco);
   background: var(--verde);
 }
+nav a:active { transform: scale(.97); }
 
 .container { max-width: 1180px; margin: auto; padding: 20px; }
 
@@ -568,26 +591,8 @@ select:focus {
   .admin-list-actions .button { flex: 1; }
 }
 
-.admin-subnav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.admin-subnav a {
-  color: var(--muted);
-  text-decoration: none;
-  font-size: .88rem;
-  font-weight: 700;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(20, 83, 45, 0.06);
-}
-
-.admin-subnav a.active {
-  color: var(--blanco);
-  background: var(--verde);
+.nav-cliente-link {
+  border: 1px solid rgba(20, 83, 45, 0.25);
 }
 
 .panel-cards {

@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { NavLink } from 'react-router-dom';
 import {
   Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts';
@@ -53,12 +52,6 @@ function Panel() {
 
   return (
     <main className="container admin-page panel-page">
-      <nav className="admin-subnav" aria-label="Menú de administración">
-        <NavLink to="/admin" end>Salidas</NavLink>
-        <NavLink to="/empresas">Empresas</NavLink>
-        <NavLink to="/admin/panel">Panel</NavLink>
-      </nav>
-
       <header className="admin-hero">
         <p className="eyebrow">Administración</p>
         <h1>Panel de estadísticas</h1>

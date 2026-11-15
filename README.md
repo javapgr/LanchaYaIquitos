@@ -114,11 +114,14 @@ LanchaYaIquitos/
 
 Rutas web:
 
-- `/` — consulta pública
+**Cliente**
+- `/` — consultar y filtrar salidas / reservar
+- `/reservas` — consultar reserva por código
+
+**Admin** (menú propio: Salidas · Empresas · Panel)
 - `/admin` — gestión de salidas
-- `/admin/panel` — estadísticas
 - `/empresas` — gestión de empresas
-- `/reservas` — consulta de reserva por código
+- `/admin/panel` — estadísticas
 
 Colección HTTP: importa `docs/LanchaYa.postman_collection.json` en Postman o Thunder Client.
 

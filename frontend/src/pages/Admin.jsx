@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
 import Filtros from '../components/Filtros';
 import SalidaForm from '../components/SalidaForm';
 import {
@@ -99,11 +98,6 @@ function Admin() {
 
   return (
     <main className="container admin-page">
-      <nav className="admin-subnav" aria-label="Menú de administración">
-        <NavLink to="/admin" end>Salidas</NavLink>
-        <NavLink to="/empresas">Empresas</NavLink>
-        <NavLink to="/admin/panel">Panel</NavLink>
-      </nav>
       <button type="button" className="button primary open-form-button" onClick={() => setFormularioAbierto(true)}>
         Registrar salida
       </button>

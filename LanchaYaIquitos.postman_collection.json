@@ -1,0 +1,82 @@
+{
+  "info": {
+    "name": "LanchaYa API",
+    "_postman_id": "b6c1a8b4-9a7e-4e16-a4cf-0c8b7b1a0001",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api" },
+    { "key": "salidaId", "value": "1" },
+    { "key": "empresaId", "value": "1" },
+    { "key": "reservaId", "value": "1" },
+    { "key": "codigoReserva", "value": "LY-ABCDE" }
+  ],
+  "item": [
+    { "name": "Health", "request": { "method": "GET", "url": "{{baseUrl}}/health" } },
+    { "name": "Listar salidas", "request": { "method": "GET", "url": "{{baseUrl}}/salidas" } },
+    { "name": "Detalle de salida", "request": { "method": "GET", "url": "{{baseUrl}}/salidas/{{salidaId}}" } },
+    {
+      "name": "Crear salida",
+      "request": {
+        "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"empresaId\":1,\"embarcacion\":\"Nueva Lancha\",\"tipo\":\"lancha\",\"destino\":\"Nauta\",\"puerto\":\"Puerto Henry\",\"fechaHora\":\"2027-01-15T08:00\",\"duracionHoras\":2,\"precio\":25,\"capacidad\":30,\"cupos\":30}" },
+        "url": "{{baseUrl}}/salidas"
+      },
+      "description": "Error 400: datos inválidos. Error 404: no aplica en creación."
+    },
+    {
+      "name": "Actualizar salida",
+      "request": {
+        "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"empresaId\":1,\"embarcacion\":\"Lancha Actualizada\",\"tipo\":\"lancha\",\"destino\":\"Nauta\",\"puerto\":\"Puerto Henry\",\"fechaHora\":\"2027-01-15T08:00\",\"duracionHoras\":2,\"precio\":25,\"capacidad\":30,\"cupos\":30}" },
+        "url": "{{baseUrl}}/salidas/{{salidaId}}"
+      },
+      "description": "Error 400: datos inválidos. Error 404: salida inexistente."
+    },
+    {
+      "name": "Cambiar estado",
+      "request": {
+        "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"estado\":\"abordando\"}" },
+        "url": "{{baseUrl}}/salidas/{{salidaId}}/estado"
+      },
+      "description": "Error 400: estado inválido. Error 404: salida inexistente."
+    },
+    { "name": "Eliminar salida", "request": { "method": "DELETE", "url": "{{baseUrl}}/salidas/{{salidaId}}" }, "description": "Error 404: inexistente. Error 409: tiene reservas." },
+    { "name": "Destinos", "request": { "method": "GET", "url": "{{baseUrl}}/destinos" } },
+    { "name": "Estadísticas", "request": { "method": "GET", "url": "{{baseUrl}}/estadisticas" } },
+    { "name": "Listar empresas", "request": { "method": "GET", "url": "{{baseUrl}}/empresas" } },
+    { "name": "Detalle de empresa", "request": { "method": "GET", "url": "{{baseUrl}}/empresas/{{empresaId}}" } },
+    {
+      "name": "Crear empresa",
+      "request": {
+        "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"razonSocial\":\"Empresa Nueva\",\"ruc\":\"20123456789\",\"telefono\":\"965432100\",\"puertoBase\":\"Puerto Henry\"}" },
+        "url": "{{baseUrl}}/empresas"
+      },
+      "description": "Error 400: datos inválidos. Error 409: RUC duplicado."
+    },
+    {
+      "name": "Actualizar empresa",
+      "request": {
+        "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"razonSocial\":\"Empresa Editada\",\"ruc\":\"20123456789\",\"telefono\":\"965432100\",\"puertoBase\":\"Puerto Masusa\"}" },
+        "url": "{{baseUrl}}/empresas/{{empresaId}}"
+      },
+      "description": "Error 400: datos inválidos. Error 404: empresa inexistente. Error 409: RUC duplicado."
+    },
+    { "name": "Eliminar empresa", "request": { "method": "DELETE", "url": "{{baseUrl}}/empresas/{{empresaId}}" }, "description": "Error 404: inexistente. Error 409: tiene salidas futuras." },
+    { "name": "Listar reservas de salida", "request": { "method": "GET", "url": "{{baseUrl}}/salidas/{{salidaId}}/reservas" }, "description": "Error 404: salida inexistente." },
+    {
+      "name": "Crear reserva",
+      "request": {
+        "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"nombre\":\"Ana Pérez\",\"dni\":\"12345678\",\"telefono\":\"965432100\",\"cantidad\":2}" },
+        "url": "{{baseUrl}}/salidas/{{salidaId}}/reservas"
+      },
+      "description": "Error 400: datos inválidos. Error 404: salida inexistente. Error 409: sin cupos o salida no disponible."
+    },
+    { "name": "Consultar reserva", "request": { "method": "GET", "url": "{{baseUrl}}/reservas/{{codigoReserva}}" }, "description": "Error 400: código inválido. Error 404: reserva inexistente." },
+    { "name": "Cancelar reserva", "request": { "method": "DELETE", "url": "{{baseUrl}}/reservas/{{reservaId}}" }, "description": "Error 404: reserva inexistente." }
+  ]
+}

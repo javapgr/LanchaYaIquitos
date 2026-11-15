@@ -7,6 +7,7 @@ function AdminLayout() {
       <nav className="admin-subnav" aria-label="Administración">
         <NavLink to="/admin" end>Salidas</NavLink>
         <NavLink to="/admin/empresas">Empresas</NavLink>
+        <NavLink to="/admin/panel">Panel</NavLink>
       </nav>
       <Outlet />
     </main>

@@ -23,7 +23,7 @@ Dev-Danilo Said Bardales Panduro
 
 | Capa | Tecnología |
 |------|------------|
-| Frontend | React 18 + Vite + React Router |
+| Frontend | React 18 + Vite + React Router + Recharts |
 | Backend | Node.js 22 + Express 4 |
 | Base de datos | SQLite (`node:sqlite`) |
 | Deploy | Vercel (frontend) + Render (API) |
@@ -55,6 +55,9 @@ npm run dev
 ```
 
 API en `http://localhost:3000`
+
+Variables opcionales: `PORT` (puerto HTTP, por defecto `3000`) y `DATA_PATH`
+(ruta del archivo SQLite).
 
 La base SQLite usa `DATA_PATH` como ruta opcional al archivo. Si `salidas` ya
 tiene registros, el seed no se vuelve a ejecutar. Para refrescar una base local
@@ -90,6 +93,7 @@ Rutas web:
 
 - `/` — consulta pública
 - `/admin` — gestión de salidas
+- `/admin/panel` — estadísticas
 
 ---
 
@@ -115,8 +119,13 @@ Rutas web:
 | DELETE | `/api/empresas/:id` | Dar de baja empresa |
 | GET | `/api/empresas/:id/salidas` | Salidas de una empresa |
 | GET | `/api/health` | Estado del servidor |
+| GET | `/api/estadisticas` | Totales, agrupaciones, cupos y precios promedio |
 
-La base SQLite se crea sola y se siembra con 12 salidas desde `backend/src/data/salidas.json`.
+La base SQLite se crea sola y se siembra con 12 salidas desde
+`backend/src/data/salidas.json`, usando fechas relativas: una salida hoy,
+otra mañana y las demás en los días siguientes. Para reiniciar el seed, detén
+el backend, elimina o mueve el archivo configurado en `DATA_PATH` (o
+`backend/src/data/salidas.db`) y vuelve a ejecutar `npm run dev`.
 Las empresas antiguas se migran con RUC temporales `20000000001`,
 `20000000002`, etc. Estos RUC son editables, pero permanecen reservados cuando
 una empresa se da de baja. Una empresa con salidas futuras responde `409` al
@@ -132,3 +141,7 @@ pago. Las salidas canceladas o zarpadas no aceptan reservas.
 
 - **Frontend (Vercel):** root `frontend` · env `VITE_API_URL=https://lanchayaiquitos.onrender.com/api`
 - **Backend (Render):** root `backend` · `npm install` / `npm start` · env `NODE_VERSION=22`
+
+La colección completa para Postman/Thunder Client está en
+`LanchaYaIquitos.postman_collection.json`. Valídala con:
+`node -e "JSON.parse(require('fs').readFileSync('LanchaYaIquitos.postman_collection.json'))"`.

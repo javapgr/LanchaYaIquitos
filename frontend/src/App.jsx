@@ -8,6 +8,7 @@ import Empresas from './pages/Empresas';
 import Home from './pages/Home';
 import ReservaConsulta from './pages/ReservaConsulta';
 import SalidaDetalle from './pages/SalidaDetalle';
+import Panel from './pages/Panel';
 
 function NoEncontrada() {
   return (
@@ -46,6 +47,7 @@ function App() {
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<Admin />} />
               <Route path="empresas" element={<Empresas />} />
+              <Route path="panel" element={<Panel />} />
             </Route>
             <Route path="/empresas" element={<Navigate to="/admin/empresas" replace />} />
             <Route path="*" element={<NoEncontrada />} />

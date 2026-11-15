@@ -207,13 +207,26 @@ function seedSiVacio() {
         fila.tipo,
         fila.destino,
         fila.puerto,
-        normalizarFechaHora(fila.fechaHora),
+        fechaHoraDeSemilla(fila),
         fila.duracionHoras,
         fila.precio,
         fila.cupos,
         fila.cupos,
         'programada',
       );
+    }
+
+    function fechaHoraDeSemilla(fila) {
+      const fecha = new Date();
+      fecha.setHours(0, 0, 0, 0);
+      fecha.setDate(fecha.getDate() + Number(fila.diasDesdeHoy || 0));
+      const hora = String(fila.hora || (fila.fechaHora && fila.fechaHora.slice(11)) || '00:00');
+      const fechaTexto = [
+        fecha.getFullYear(),
+        String(fecha.getMonth() + 1).padStart(2, '0'),
+        String(fecha.getDate()).padStart(2, '0'),
+      ].join('-');
+      return normalizarFechaHora(`${fechaTexto}T${hora}`);
     }
     db.exec('COMMIT');
   } catch (error) {

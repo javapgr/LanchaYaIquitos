@@ -56,3 +56,4 @@ export const crearReserva = (id, reserva) =>
 export const obtenerReservasSalida = (id) => request(`/salidas/${id}/reservas`);
 export const eliminarReserva = (id) => request(`/reservas/${id}`, { method: 'DELETE' });
 export const obtenerReserva = (codigo) => request(`/reservas/${encodeURIComponent(codigo)}`);
+export const obtenerEstadisticas = () => request('/estadisticas');

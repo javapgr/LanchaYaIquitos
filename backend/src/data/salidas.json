@@ -6,7 +6,8 @@
     "tipo": "rapido",
     "destino": "Nauta",
     "puerto": "Puerto Productores",
-    "fechaHora": "2026-11-16T06:30",
+    "diasDesdeHoy": 0,
+    "hora": "06:30",
     "duracionHoras": 2,
     "precio": 20,
     "cupos": 30
@@ -18,7 +19,8 @@
     "tipo": "lancha",
     "destino": "Yurimaguas",
     "puerto": "Puerto Henry",
-    "fechaHora": "2026-11-16T18:00",
+    "diasDesdeHoy": 1,
+    "hora": "18:00",
     "duracionHoras": 72,
     "precio": 120,
     "cupos": 150
@@ -30,7 +32,8 @@
     "tipo": "rapido",
     "destino": "Requena",
     "puerto": "Puerto Henry",
-    "fechaHora": "2026-11-17T05:00",
+    "diasDesdeHoy": 2,
+    "hora": "05:00",
     "duracionHoras": 4,
     "precio": 70,
     "cupos": 40
@@ -42,7 +45,8 @@
     "tipo": "rapido",
     "destino": "Santa Rosa",
     "puerto": "Puerto Henry",
-    "fechaHora": "2026-11-17T05:30",
+    "diasDesdeHoy": 2,
+    "hora": "05:30",
     "duracionHoras": 10,
     "precio": 200,
     "cupos": 45
@@ -54,7 +58,8 @@
     "tipo": "lancha",
     "destino": "Pucallpa",
     "puerto": "Puerto Masusa",
-    "fechaHora": "2026-11-18T07:00",
+    "diasDesdeHoy": 3,
+    "hora": "07:00",
     "duracionHoras": 48,
     "precio": 150,
     "cupos": 120
@@ -66,7 +71,8 @@
     "tipo": "deslizador",
     "destino": "Nauta",
     "puerto": "Puerto Bellavista Nanay",
-    "fechaHora": "2026-11-18T08:15",
+    "diasDesdeHoy": 3,
+    "hora": "08:15",
     "duracionHoras": 2,
     "precio": 35,
     "cupos": 18
@@ -78,7 +84,8 @@
     "tipo": "lancha",
     "destino": "Caballococha",
     "puerto": "Puerto Productores",
-    "fechaHora": "2026-11-19T06:00",
+    "diasDesdeHoy": 4,
+    "hora": "06:00",
     "duracionHoras": 30,
     "precio": 95,
     "cupos": 90
@@ -90,7 +97,8 @@
     "tipo": "deslizador",
     "destino": "Requena",
     "puerto": "Puerto Masusa",
-    "fechaHora": "2026-11-19T09:30",
+    "diasDesdeHoy": 4,
+    "hora": "09:30",
     "duracionHoras": 4,
     "precio": 85,
     "cupos": 16
@@ -102,7 +110,8 @@
     "tipo": "lancha",
     "destino": "Santa Rosa",
     "puerto": "Puerto Bellavista Nanay",
-    "fechaHora": "2026-11-20T17:00",
+    "diasDesdeHoy": 5,
+    "hora": "17:00",
     "duracionHoras": 11,
     "precio": 180,
     "cupos": 100
@@ -114,7 +123,8 @@
     "tipo": "rapido",
     "destino": "Yurimaguas",
     "puerto": "Puerto Productores",
-    "fechaHora": "2026-11-20T06:45",
+    "diasDesdeHoy": 5,
+    "hora": "06:45",
     "duracionHoras": 70,
     "precio": 135,
     "cupos": 35
@@ -126,7 +136,8 @@
     "tipo": "deslizador",
     "destino": "Nauta",
     "puerto": "Puerto Henry",
-    "fechaHora": "2026-11-21T10:00",
+    "diasDesdeHoy": 6,
+    "hora": "10:00",
     "duracionHoras": 2,
     "precio": 40,
     "cupos": 20
@@ -138,7 +149,8 @@
     "tipo": "rapido",
     "destino": "Caballococha",
     "puerto": "Puerto Masusa",
-    "fechaHora": "2026-11-21T05:45",
+    "diasDesdeHoy": 6,
+    "hora": "05:45",
     "duracionHoras": 29,
     "precio": 110,
     "cupos": 42

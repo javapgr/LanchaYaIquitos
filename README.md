@@ -33,8 +33,9 @@ Dev-Danilo Said Bardales Panduro
 ## Qué puedes hacer
 
 - Ver salidas ordenadas por fecha
-- Filtrar por destino, fecha y tipo (`lancha`, `rapido`, `deslizador`)
+- Filtrar por destino, fecha, tipo, precio y periodo (`hoy` o `48h`)
 - Buscar por empresa o embarcación
+- Ordenar y paginar resultados desde el servidor
 - Ver cupos con color (verde / amarillo / rojo)
 - Admin: crear, editar y eliminar salidas
 - Admin: gestionar empresas activas y asociarlas a las salidas
@@ -96,7 +97,7 @@ Rutas web:
 
 | Método | Ruta | Qué hace |
 |--------|------|----------|
-| GET | `/api/salidas` | Lista (filtros: `destino`, `fecha`, `tipo`, `q`) |
+| GET | `/api/salidas` | Lista (filtros: `destino`, `fecha`, `tipo`, `q`, `precioMin`, `precioMax`, `rango`; orden: `orden=fecha|precio|duracion`, `dir=asc|desc`; paginación: `page`, `limit`) |
 | GET | `/api/salidas/:id` | Detalle |
 | POST | `/api/salidas` | Crear |
 | PUT | `/api/salidas/:id` | Actualizar |

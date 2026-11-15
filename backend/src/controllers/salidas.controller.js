@@ -5,7 +5,9 @@ const {
 
 function listarSalidas(req, res, next) {
   try {
-    const { destino, fecha, tipo, q } = req.query;
+    const {
+      destino, fecha, tipo, q, precioMin, precioMax, orden, dir, rango,
+    } = req.query;
     const condiciones = [];
     const valores = [];
 
@@ -26,8 +28,73 @@ function listarSalidas(req, res, next) {
       const texto = `%${String(q).trim().toLowerCase()}%`;
       valores.push(texto, texto);
     }
+    if (precioMin !== undefined && precioMin !== '') {
+      const minimo = Number(precioMin);
+      if (!Number.isFinite(minimo) || minimo < 0) {
+        return res.status(400).json({ error: true, mensaje: 'precioMin debe ser un número mayor o igual que 0' });
+      }
+      condiciones.push('s.precio >= ?');
+      valores.push(minimo);
+    }
+    if (precioMax !== undefined && precioMax !== '') {
+      const maximo = Number(precioMax);
+      if (!Number.isFinite(maximo) || maximo < 0) {
+        return res.status(400).json({ error: true, mensaje: 'precioMax debe ser un número mayor o igual que 0' });
+      }
+      condiciones.push('s.precio <= ?');
+      valores.push(maximo);
+    }
+    if (precioMin !== undefined && precioMax !== undefined
+      && precioMin !== '' && precioMax !== '' && Number(precioMin) > Number(precioMax)) {
+      return res.status(400).json({ error: true, mensaje: 'precioMin no puede ser mayor que precioMax' });
+    }
+    if (rango === 'hoy') {
+      const inicio = new Date();
+      inicio.setHours(0, 0, 0, 0);
+      const fin = new Date(inicio);
+      fin.setDate(fin.getDate() + 1);
+      condiciones.push('s.fechaHora >= ? AND s.fechaHora < ?');
+      valores.push(aIsoLocal(inicio), aIsoLocal(fin));
+    } else if (rango === '48h') {
+      const inicio = new Date();
+      const fin = new Date(inicio.getTime() + (48 * 60 * 60 * 1000));
+      condiciones.push('s.fechaHora >= ? AND s.fechaHora <= ?');
+      valores.push(aIsoLocal(inicio), aIsoLocal(fin));
+    } else if (rango) {
+      return res.status(400).json({ error: true, mensaje: 'rango debe ser hoy o 48h' });
+    }
 
     const where = condiciones.length ? `WHERE ${condiciones.join(' AND ')}` : '';
+    const ordenes = {
+      fecha: 's.fechaHora',
+      precio: 's.precio',
+      duracion: 's.duracionHoras',
+    };
+    if (orden && !ordenes[orden]) {
+      return res.status(400).json({ error: true, mensaje: 'orden debe ser fecha, precio o duracion' });
+    }
+    if (dir && !['asc', 'desc'].includes(String(dir).toLowerCase())) {
+      return res.status(400).json({ error: true, mensaje: 'dir debe ser asc o desc' });
+    }
+    const columnaOrden = ordenes[orden] || ordenes.fecha;
+    const direccion = String(dir).toLowerCase() === 'desc' ? 'DESC' : 'ASC';
+    const tienePaginacion = req.query.page !== undefined || req.query.limit !== undefined;
+    const pagina = req.query.page === undefined ? 1 : Number(req.query.page);
+    const limite = req.query.limit === undefined ? 10 : Number(req.query.limit);
+    if (tienePaginacion && (!Number.isInteger(pagina) || pagina < 1
+      || !Number.isInteger(limite) || limite < 1 || limite > 100)) {
+      return res.status(400).json({ error: true, mensaje: 'page debe ser entero mayor que 0 y limit un entero entre 1 y 100' });
+    }
+    const total = db.prepare(`
+      SELECT COUNT(*) AS total
+      FROM salidas s
+      JOIN empresas e ON e.id = s.empresaId
+      ${where}
+    `).get(...valores).total;
+    const paginacion = tienePaginacion ? ' LIMIT ? OFFSET ?' : '';
+    const parametros = tienePaginacion
+      ? [...valores, limite, (pagina - 1) * limite]
+      : valores;
     const salidas = db.prepare(`
       SELECT
         s.id, s.empresaId, e.razonSocial AS empresa, s.embarcacion, s.tipo,
@@ -36,13 +103,34 @@ function listarSalidas(req, res, next) {
       FROM salidas s
       JOIN empresas e ON e.id = s.empresaId
       ${where}
-      ORDER BY s.fechaHora ASC
-    `).all(...valores);
+      ORDER BY ${columnaOrden} ${direccion}, s.id ASC
+      ${paginacion}
+    `).all(...parametros);
 
-    return res.json(salidas);
+    if (!tienePaginacion) return res.json(salidas);
+    return res.json({
+      salidas,
+      paginacion: {
+        pagina,
+        limit: limite,
+        total,
+        totalPaginas: Math.max(1, Math.ceil(total / limite)),
+      },
+    });
   } catch (error) {
     return next(error);
   }
+}
+
+function aIsoLocal(fecha) {
+  const partes = [
+    fecha.getFullYear(),
+    String(fecha.getMonth() + 1).padStart(2, '0'),
+    String(fecha.getDate()).padStart(2, '0'),
+    String(fecha.getHours()).padStart(2, '0'),
+    String(fecha.getMinutes()).padStart(2, '0'),
+  ];
+  return `${partes[0]}-${partes[1]}-${partes[2]}T${partes[3]}:${partes[4]}`;
 }
 
 function obtenerSalida(req, res, next) {

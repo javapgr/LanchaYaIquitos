@@ -8,6 +8,10 @@ import {
 import { claseCupos, etiquetaCupos } from '../utils/cupos';
 
 const POR_PAGINA = 5;
+const FILTROS_INICIALES = {
+  q: '', destino: '', fecha: '', tipo: '', precioMin: '', precioMax: '',
+  rango: '', orden: 'fecha', dir: 'asc',
+};
 
 function formatearFecha(fechaHora) {
   const fecha = new Date(fechaHora);
@@ -21,7 +25,9 @@ function Admin() {
   const [salidas, setSalidas] = useState([]);
   const [destinos, setDestinos] = useState([]);
   const [empresas, setEmpresas] = useState([]);
-  const [filtros, setFiltros] = useState({ q: '', destino: '', fecha: '', tipo: '' });
+  const [filtros, setFiltros] = useState(FILTROS_INICIALES);
+  const [busqueda, setBusqueda] = useState('');
+  const [paginacion, setPaginacion] = useState({ total: 0, totalPaginas: 1 });
   const [pagina, setPagina] = useState(1);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
@@ -31,26 +37,29 @@ function Admin() {
   const cargarSalidas = useCallback(async () => {
     setCargando(true);
     try {
-      setSalidas(await obtenerSalidas(filtros));
+      const resultado = await obtenerSalidas({ ...filtros, page: pagina, limit: POR_PAGINA });
+      setSalidas(resultado.salidas);
+      setPaginacion(resultado.paginacion);
       setError('');
     } catch (requestError) {
       setError(requestError.message);
     } finally {
       setCargando(false);
     }
-  }, [filtros]);
+  }, [filtros, pagina]);
 
   useEffect(() => {
     obtenerDestinos().then(setDestinos).catch((requestError) => setError(requestError.message));
     obtenerEmpresas().then(setEmpresas).catch((requestError) => setError(requestError.message));
   }, []);
   useEffect(() => { cargarSalidas(); }, [cargarSalidas]);
-  useEffect(() => { setPagina(1); }, [filtros]);
-
-  const totalPaginas = Math.max(1, Math.ceil(salidas.length / POR_PAGINA));
-  const paginaActual = Math.min(pagina, totalPaginas);
-  const inicio = (paginaActual - 1) * POR_PAGINA;
-  const salidasPagina = salidas.slice(inicio, inicio + POR_PAGINA);
+  useEffect(() => {
+    const temporizador = setTimeout(() => {
+      setPagina(1);
+      setFiltros((actuales) => ({ ...actuales, q: busqueda }));
+    }, 300);
+    return () => clearTimeout(temporizador);
+  }, [busqueda]);
 
   function cerrarFormulario() {
     setSalidaEditando(null);
@@ -59,6 +68,7 @@ function Admin() {
 
   function cambiarFiltro(event) {
     setFiltros({ ...filtros, [event.target.name]: event.target.value });
+    setPagina(1);
   }
 
   function editar(salida) {
@@ -86,13 +96,14 @@ function Admin() {
       setError(requestError.message);
     }
 
-    async function cambiarEstado(id, estado) {
-      try {
-        await actualizarEstadoSalida(id, estado);
-        await cargarSalidas();
-      } catch (requestError) {
-        setError(requestError.message);
-      }
+  }
+
+  async function cambiarEstado(id, estado) {
+    try {
+      await actualizarEstadoSalida(id, estado);
+      await cargarSalidas();
+    } catch (requestError) {
+      setError(requestError.message);
     }
   }
 
@@ -121,12 +132,18 @@ function Admin() {
         </div>
       )}
       <section className="listing">
-        <div className="section-title"><h2>Salidas registradas</h2><span>{salidas.length} resultados</span></div>
+        <div className="section-title"><h2>Salidas registradas</h2><span>{paginacion.total} resultados</span></div>
         <Filtros
           filtros={filtros}
           destinos={destinos}
           onChange={cambiarFiltro}
-          onLimpiar={() => setFiltros({ q: '', destino: '', fecha: '', tipo: '' })}
+          busqueda={busqueda}
+          onSearchChange={(event) => setBusqueda(event.target.value)}
+          onLimpiar={() => {
+            setBusqueda('');
+            setFiltros(FILTROS_INICIALES);
+            setPagina(1);
+          }}
         />
         {cargando && <p className="status">Cargando salidas...</p>}
         {!cargando && error && <p className="status error-message">{error}</p>}
@@ -147,7 +164,7 @@ function Admin() {
                 <span role="columnheader">Estado</span>
                 <span role="columnheader">Acciones</span>
               </div>
-              {salidasPagina.map((salida) => (
+              {salidas.map((salida) => (
                 <div className="admin-list-row" role="row" key={salida.id}>
                   <span data-label="Destino" role="cell">{salida.destino}</span>
                   <span data-label="Empresa" role="cell">{salida.empresa}</span>
@@ -179,19 +196,19 @@ function Admin() {
               <button
                 type="button"
                 className="button secondary"
-                disabled={paginaActual <= 1}
-                onClick={() => setPagina(paginaActual - 1)}
+                disabled={pagina <= 1}
+                onClick={() => setPagina(pagina - 1)}
               >
                 Anterior
               </button>
               <span className="pagination-info">
-                Página {paginaActual} de {totalPaginas}
+                Página {pagina} de {paginacion.totalPaginas}
               </span>
               <button
                 type="button"
                 className="button secondary"
-                disabled={paginaActual >= totalPaginas}
-                onClick={() => setPagina(paginaActual + 1)}
+                disabled={pagina >= paginacion.totalPaginas}
+                onClick={() => setPagina(pagina + 1)}
               >
                 Siguiente
               </button>

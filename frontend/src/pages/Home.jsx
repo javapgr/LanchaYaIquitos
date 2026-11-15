@@ -4,10 +4,19 @@ import ReservaForm from '../components/ReservaForm';
 import SalidaCard from '../components/SalidaCard';
 import { crearReserva, obtenerDestinos, obtenerSalidas } from '../services/api';
 
+const FILTROS_INICIALES = {
+  q: '', destino: '', fecha: '', tipo: '', precioMin: '', precioMax: '',
+  rango: '', orden: 'fecha', dir: 'asc',
+};
+const POR_PAGINA = 6;
+
 function Home() {
   const [salidas, setSalidas] = useState([]);
   const [destinos, setDestinos] = useState([]);
-  const [filtros, setFiltros] = useState({ q: '', destino: '', fecha: '', tipo: '' });
+  const [filtros, setFiltros] = useState(FILTROS_INICIALES);
+  const [busqueda, setBusqueda] = useState('');
+  const [pagina, setPagina] = useState(1);
+  const [paginacion, setPaginacion] = useState({ total: 0, totalPaginas: 1 });
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
   const [salidaReservando, setSalidaReservando] = useState(null);
@@ -16,14 +25,16 @@ function Home() {
   const cargarSalidas = useCallback(async () => {
     setCargando(true);
     try {
-      setSalidas(await obtenerSalidas(filtros));
+      const resultado = await obtenerSalidas({ ...filtros, page: pagina, limit: POR_PAGINA });
+      setSalidas(resultado.salidas);
+      setPaginacion(resultado.paginacion);
       setError('');
     } catch (requestError) {
       setError(requestError.message);
     } finally {
       setCargando(false);
     }
-  }, [filtros]);
+  }, [filtros, pagina]);
 
   useEffect(() => {
     obtenerDestinos().then(setDestinos).catch((requestError) => setError(requestError.message));
@@ -33,9 +44,17 @@ function Home() {
     return () => document.body.classList.remove('client-background');
   }, []);
   useEffect(() => { cargarSalidas(); }, [cargarSalidas]);
+  useEffect(() => {
+    const temporizador = setTimeout(() => {
+      setPagina(1);
+      setFiltros((actuales) => ({ ...actuales, q: busqueda }));
+    }, 300);
+    return () => clearTimeout(temporizador);
+  }, [busqueda]);
 
   function cambiarFiltro(event) {
     setFiltros({ ...filtros, [event.target.name]: event.target.value });
+    setPagina(1);
   }
 
   function irAListado() {
@@ -70,13 +89,19 @@ function Home() {
         <section className="listing">
           <div className="section-title">
             <h2>Salidas disponibles</h2>
-            <span>{salidas.length} resultados</span>
+            <span>{paginacion.total} resultados</span>
           </div>
           <Filtros
             filtros={filtros}
             destinos={destinos}
             onChange={cambiarFiltro}
-            onLimpiar={() => setFiltros({ q: '', destino: '', fecha: '', tipo: '' })}
+            busqueda={busqueda}
+            onSearchChange={(event) => setBusqueda(event.target.value)}
+            onLimpiar={() => {
+              setBusqueda('');
+              setFiltros(FILTROS_INICIALES);
+              setPagina(1);
+            }}
           />
           {cargando && <p className="status">Cargando salidas...</p>}
           {!cargando && error && <p className="status error-message">{error}</p>}
@@ -84,15 +109,33 @@ function Home() {
             <p className="status">No hay salidas para los filtros seleccionados.</p>
           )}
           {!cargando && !error && salidas.length > 0 && (
-            <div className="cards">
-              {salidas.map((salida) => (
-                <SalidaCard
-                  key={salida.id}
-                  salida={salida}
-                  onReservar={setSalidaReservando}
-                />
-              ))}
-            </div>
+            <>
+              <div className="cards">
+                {salidas.map((salida) => (
+                  <SalidaCard
+                    key={salida.id}
+                    salida={salida}
+                    onReservar={setSalidaReservando}
+                  />
+                ))}
+              </div>
+              <nav className="pagination" aria-label="Paginación de salidas">
+                <button type="button" className="button secondary" disabled={pagina <= 1} onClick={() => setPagina(pagina - 1)}>
+                  Anterior
+                </button>
+                <span className="pagination-info">
+                  Página {pagina} de {paginacion.totalPaginas}
+                </span>
+                <button
+                  type="button"
+                  className="button secondary"
+                  disabled={pagina >= paginacion.totalPaginas}
+                  onClick={() => setPagina(pagina + 1)}
+                >
+                  Siguiente
+                </button>
+              </nav>
+            </>
           )}
         </section>
       </main>

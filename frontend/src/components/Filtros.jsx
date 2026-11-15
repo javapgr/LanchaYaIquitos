@@ -1,6 +1,8 @@
 import React from 'react';
 
-function Filtros({ filtros, destinos, onChange, onLimpiar }) {
+function Filtros({
+  filtros, destinos, onChange, onLimpiar, busqueda = filtros.q, onSearchChange = onChange,
+}) {
   return (
     <section className="filters">
       <label className="filter-search">
@@ -8,8 +10,8 @@ function Filtros({ filtros, destinos, onChange, onLimpiar }) {
         <input
           type="search"
           name="q"
-          value={filtros.q}
-          onChange={onChange}
+          value={busqueda}
+          onChange={onSearchChange}
           placeholder="Empresa o embarcación"
         />
       </label>
@@ -33,6 +35,37 @@ function Filtros({ filtros, destinos, onChange, onLimpiar }) {
           <option value="lancha">Lancha</option>
           <option value="rapido">Rápido</option>
           <option value="deslizador">Deslizador</option>
+        </select>
+      </label>
+      <label>
+        Precio mínimo
+        <input type="number" name="precioMin" min="0" step="0.01" value={filtros.precioMin} onChange={onChange} />
+      </label>
+      <label>
+        Precio máximo
+        <input type="number" name="precioMax" min="0" step="0.01" value={filtros.precioMax} onChange={onChange} />
+      </label>
+      <label>
+        Periodo
+        <select name="rango" value={filtros.rango} onChange={onChange}>
+          <option value="">Todas las fechas</option>
+          <option value="hoy">Solo hoy</option>
+          <option value="48h">Próximas 48 horas</option>
+        </select>
+      </label>
+      <label>
+        Ordenar por
+        <select name="orden" value={filtros.orden} onChange={onChange}>
+          <option value="fecha">Fecha</option>
+          <option value="precio">Precio</option>
+          <option value="duracion">Duración</option>
+        </select>
+      </label>
+      <label>
+        Dirección
+        <select name="dir" value={filtros.dir} onChange={onChange}>
+          <option value="asc">Ascendente</option>
+          <option value="desc">Descendente</option>
         </select>
       </label>
       <button type="button" className="button secondary clear-button" onClick={onLimpiar}>

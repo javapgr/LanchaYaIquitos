@@ -1,5 +1,7 @@
 const db = require('../db');
-const { datosSalida, obtenerId, validarSalida } = require('../validators');
+const {
+  datosSalida, normalizarEstado, obtenerId, validarSalida,
+} = require('../validators');
 
 function listarSalidas(req, res, next) {
   try {
@@ -30,7 +32,7 @@ function listarSalidas(req, res, next) {
       SELECT
         s.id, s.empresaId, e.razonSocial AS empresa, s.embarcacion, s.tipo,
         s.destino, s.puerto, s.fechaHora, s.duracionHoras, s.precio,
-        s.capacidad, s.cupos
+        s.capacidad, s.cupos, s.estado
       FROM salidas s
       JOIN empresas e ON e.id = s.empresaId
       ${where}
@@ -50,7 +52,7 @@ function obtenerSalida(req, res, next) {
       SELECT
         s.id, s.empresaId, e.razonSocial AS empresa, s.embarcacion, s.tipo,
         s.destino, s.puerto, s.fechaHora, s.duracionHoras, s.precio,
-        s.capacidad, s.cupos
+        s.capacidad, s.cupos, s.estado
       FROM salidas s
       JOIN empresas e ON e.id = s.empresaId
       WHERE s.id = ?
@@ -102,7 +104,7 @@ function crearSalida(req, res, next) {
       SELECT
         s.id, s.empresaId, e.razonSocial AS empresa, s.embarcacion, s.tipo,
         s.destino, s.puerto, s.fechaHora, s.duracionHoras, s.precio,
-        s.capacidad, s.cupos
+        s.capacidad, s.cupos, s.estado
       FROM salidas s
       JOIN empresas e ON e.id = s.empresaId
       WHERE s.id = ?
@@ -173,7 +175,7 @@ function actualizarSalida(req, res, next) {
       SELECT
         s.id, s.empresaId, e.razonSocial AS empresa, s.embarcacion, s.tipo,
         s.destino, s.puerto, s.fechaHora, s.duracionHoras, s.precio,
-        s.capacidad, s.cupos
+        s.capacidad, s.cupos, s.estado
       FROM salidas s
       JOIN empresas e ON e.id = s.empresaId
       WHERE s.id = ?
@@ -213,6 +215,38 @@ function listarDestinos(req, res, next) {
   }
 }
 
+function actualizarEstado(req, res, next) {
+  try {
+    const id = obtenerId(req.params.id);
+    const estado = normalizarEstado(req.body?.estado);
+    if (!estado) {
+      return res.status(400).json({
+        error: true,
+        mensaje: 'El estado debe ser programada, abordando, zarpó, zarpo o cancelada',
+      });
+    }
+
+    const existente = db.prepare('SELECT id FROM salidas WHERE id = ?').get(id);
+    if (!existente) {
+      return res.status(404).json({ error: true, mensaje: 'Salida no encontrada' });
+    }
+
+    db.prepare('UPDATE salidas SET estado = ? WHERE id = ?').run(estado, id);
+    const salida = db.prepare(`
+      SELECT
+        s.id, s.empresaId, e.razonSocial AS empresa, s.embarcacion, s.tipo,
+        s.destino, s.puerto, s.fechaHora, s.duracionHoras, s.precio,
+        s.capacidad, s.cupos, s.estado
+      FROM salidas s
+      JOIN empresas e ON e.id = s.empresaId
+      WHERE s.id = ?
+    `).get(id);
+    return res.json(salida);
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   listarSalidas,
   obtenerSalida,
@@ -220,4 +254,5 @@ module.exports = {
   actualizarSalida,
   eliminarSalida,
   listarDestinos,
+  actualizarEstado,
 }

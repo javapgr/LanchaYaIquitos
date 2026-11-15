@@ -1,6 +1,10 @@
 import React from 'react';
 import { claseCupos, etiquetaCupos } from '../utils/cupos';
 
+function claseEstado(estado) {
+  return estado === 'zarpó' ? 'zarpo' : estado;
+}
+
 function SalidaCard({ salida }) {
   const fecha = new Date(salida.fechaHora);
 
@@ -8,6 +12,7 @@ function SalidaCard({ salida }) {
     <article className="card">
       <div className="card-header">
         <span className={`tag tag-${salida.tipo}`}>{salida.tipo}</span>
+        <span className={`estado estado-${claseEstado(salida.estado)}`}>{salida.estado}</span>
         <span className={`cupos ${claseCupos(salida.cupos)}`} title={etiquetaCupos(salida.cupos)}>
           {salida.cupos} cupos · {etiquetaCupos(salida.cupos)}
         </span>

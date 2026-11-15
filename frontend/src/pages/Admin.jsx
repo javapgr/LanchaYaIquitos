@@ -2,7 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Filtros from '../components/Filtros';
 import SalidaForm from '../components/SalidaForm';
 import {
-  actualizarSalida, crearSalida, eliminarSalida, obtenerDestinos, obtenerEmpresas, obtenerSalidas,
+  actualizarEstadoSalida, actualizarSalida, crearSalida, eliminarSalida,
+  obtenerDestinos, obtenerEmpresas, obtenerSalidas,
 } from '../services/api';
 import { claseCupos, etiquetaCupos } from '../utils/cupos';
 
@@ -84,6 +85,15 @@ function Admin() {
     } catch (requestError) {
       setError(requestError.message);
     }
+
+    async function cambiarEstado(id, estado) {
+      try {
+        await actualizarEstadoSalida(id, estado);
+        await cargarSalidas();
+      } catch (requestError) {
+        setError(requestError.message);
+      }
+    }
   }
 
   return (
@@ -134,6 +144,7 @@ function Admin() {
                 <span role="columnheader">Puerto</span>
                 <span role="columnheader">Precio</span>
                 <span role="columnheader">Cupos</span>
+                <span role="columnheader">Estado</span>
                 <span role="columnheader">Acciones</span>
               </div>
               {salidasPagina.map((salida) => (
@@ -148,6 +159,14 @@ function Admin() {
                     <span className={`cupos ${claseCupos(salida.cupos)}`} title={etiquetaCupos(salida.cupos)}>
                       {salida.cupos} / {salida.capacidad}
                     </span>
+                  </span>
+                  <span data-label="Estado" role="cell">
+                    <select value={salida.estado} onChange={(event) => cambiarEstado(salida.id, event.target.value)}>
+                      <option value="programada">Programada</option>
+                      <option value="abordando">Abordando</option>
+                      <option value="zarpó">Zarpó</option>
+                      <option value="cancelada">Cancelada</option>
+                    </select>
                   </span>
                   <span data-label="Acciones" role="cell" className="admin-list-actions">
                     <button type="button" className="button secondary" onClick={() => editar(salida)}>Editar</button>

@@ -41,4 +41,6 @@ export const crearSalida = (salida) =>
   request('/salidas', { method: 'POST', body: JSON.stringify(salida) });
 export const actualizarSalida = (id, salida) =>
   request(`/salidas/${id}`, { method: 'PUT', body: JSON.stringify(salida) });
+export const actualizarEstadoSalida = (id, estado) =>
+  request(`/salidas/${id}/estado`, { method: 'PATCH', body: JSON.stringify({ estado }) });
 export const eliminarSalida = (id) => request(`/salidas/${id}`, { method: 'DELETE' });

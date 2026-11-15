@@ -100,6 +100,7 @@ Rutas web:
 | GET | `/api/salidas/:id` | Detalle |
 | POST | `/api/salidas` | Crear |
 | PUT | `/api/salidas/:id` | Actualizar |
+| PATCH | `/api/salidas/:id/estado` | Cambiar estado |
 | DELETE | `/api/salidas/:id` | Eliminar |
 | GET | `/api/destinos` | Destinos únicos |
 | GET | `/api/empresas` | Empresas activas |
@@ -115,6 +116,8 @@ Las empresas antiguas se migran con RUC temporales `20000000001`,
 `20000000002`, etc. Estos RUC son editables, pero permanecen reservados cuando
 una empresa se da de baja. Una empresa con salidas futuras responde `409` al
 intentar darla de baja.
+Los estados válidos de una salida son `programada`, `abordando`, `zarpó`,
+`zarpo` y `cancelada`; `zarpo` se normaliza a `zarpó`.
 
 ---
 

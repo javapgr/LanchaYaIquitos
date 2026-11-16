@@ -72,9 +72,11 @@ function Shell() {
               </p>
             </div>
           </div>
-          <nav className="footer-nav" aria-label="Enlaces del pie">
-            {enAdmin ? <NavAdmin /> : <NavCliente />}
-          </nav>
+          {!enAdmin && (
+            <nav className="footer-nav" aria-label="Enlaces del pie">
+              <NavCliente />
+            </nav>
+          )}
           <p className="footer-copy">Puertos Henry, Masusa, Productores y Bellavista Nanay.</p>
         </div>
       </footer>

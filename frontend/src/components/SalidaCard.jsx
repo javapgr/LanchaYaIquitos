@@ -15,8 +15,8 @@ function SalidaCard({ salida, onReservar }) {
       <div className="card-header">
         <span className={`tag tag-${salida.tipo}`}>{salida.tipo}</span>
         <span className={`estado estado-${claseEstado(salida.estado)}`}>{salida.estado}</span>
-        <span className={`cupos ${claseCupos(salida.cupos)}`} title={etiquetaCupos(salida.cupos)}>
-          {salida.cupos} cupos · {etiquetaCupos(salida.cupos)}
+        <span className={`cupos ${claseCupos(salida.cupos)}`} title={`${salida.cupos} cupos · ${etiquetaCupos(salida.cupos)}`}>
+          {salida.cupos} · {etiquetaCupos(salida.cupos)}
         </span>
       </div>
       <h3>{salida.destino}</h3>

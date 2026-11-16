@@ -1,5 +1,6 @@
 import React from 'react';
 import { claseCupos, etiquetaCupos } from '../utils/cupos';
+import { formatearDuracion } from '../utils/duracion';
 
 function claseEstado(estado) {
   return estado === 'zarpó' ? 'zarpo' : estado;
@@ -30,7 +31,7 @@ function SalidaCard({ salida, onReservar }) {
           </dd>
         </div>
         <div><dt>Puerto</dt><dd>{salida.puerto}</dd></div>
-        <div><dt>Duración</dt><dd>{salida.duracionHoras} horas</dd></div>
+        <div><dt>Duración</dt><dd>{formatearDuracion(salida.duracionHoras)}</dd></div>
       </dl>
       <strong className="price">S/ {salida.precio.toFixed(2)}</strong>
       {onReservar && (

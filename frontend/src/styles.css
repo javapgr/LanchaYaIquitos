@@ -533,6 +533,26 @@ select:focus {
   font-size: 2rem;
   letter-spacing: .12em;
 }
+.reservation-actions {
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.reservation-lookup .reservation-actions {
+  justify-content: flex-start;
+  margin-top: 16px;
+}
+.reservation-lookup .form-help,
+.reservation-success .form-help {
+  margin: 12px 0 0;
+  text-align: center;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: .92rem;
+}
+.reservation-lookup .form-help {
+  text-align: left;
+}
 
 .admin-list {
   background: var(--blanco);

@@ -3,6 +3,7 @@ import Filtros from '../components/Filtros';
 import ReservaForm from '../components/ReservaForm';
 import SalidaCard from '../components/SalidaCard';
 import { crearReserva, obtenerDestinos, obtenerSalidas } from '../services/api';
+import { copiarCodigoReserva, descargarReserva } from '../utils/reservaTicket';
 
 function Home() {
   const [salidas, setSalidas] = useState([]);
@@ -11,7 +12,8 @@ function Home() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
   const [salidaReservando, setSalidaReservando] = useState(null);
-  const [codigoReserva, setCodigoReserva] = useState('');
+  const [reservaConfirmada, setReservaConfirmada] = useState(null);
+  const [avisoReserva, setAvisoReserva] = useState('');
 
   const cargarSalidas = useCallback(async () => {
     setCargando(true);
@@ -45,12 +47,27 @@ function Home() {
   async function reservar(datos) {
     try {
       const reserva = await crearReserva(salidaReservando.id, datos);
-      setCodigoReserva(reserva.codigo);
+      setReservaConfirmada(reserva);
+      setAvisoReserva('');
       setSalidaReservando(null);
       await cargarSalidas();
     } catch (requestError) {
       setError(requestError.message);
     }
+  }
+
+  async function copiarCodigoConfirmado() {
+    try {
+      await copiarCodigoReserva(reservaConfirmada.codigo);
+      setAvisoReserva('Código copiado');
+    } catch {
+      setAvisoReserva('No se pudo copiar el código');
+    }
+  }
+
+  function descargarComprobante() {
+    descargarReserva(reservaConfirmada);
+    setAvisoReserva('Comprobante descargado');
   }
 
   return (
@@ -110,13 +127,24 @@ function Home() {
           </div>
         </div>
       )}
-      {codigoReserva && (
+      {reservaConfirmada && (
         <div className="modal-backdrop" role="presentation">
           <div className="modal reservation-success">
             <h2>Reserva confirmada</h2>
             <p>Guarda este código para consultar tu reserva:</p>
-            <strong>{codigoReserva}</strong>
-            <button type="button" className="button primary" onClick={() => setCodigoReserva('')}>Continuar</button>
+            <strong>{reservaConfirmada.codigo}</strong>
+            <div className="form-actions reservation-actions">
+              <button type="button" className="button secondary" onClick={copiarCodigoConfirmado}>
+                Copiar código
+              </button>
+              <button type="button" className="button secondary" onClick={descargarComprobante}>
+                Descargar comprobante
+              </button>
+            </div>
+            {avisoReserva && <p className="form-help" role="status">{avisoReserva}</p>}
+            <button type="button" className="button primary" onClick={() => setReservaConfirmada(null)}>
+              Continuar
+            </button>
           </div>
         </div>
       )}

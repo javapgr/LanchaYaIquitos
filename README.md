@@ -7,6 +7,8 @@ Los pasajeros consultan y filtran. El administrador registra, edita y elimina sa
 **Integrantes:**
 Dev-Danilo Said Bardales Panduro
 
+![Consulta de reserva en LANCHA YA!](docs/consultar-reserva.png)
+
 ---
 
 ## Demo

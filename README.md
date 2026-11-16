@@ -7,8 +7,6 @@ Los pasajeros consultan y filtran. El administrador registra, edita y elimina sa
 **Integrantes:**
 Dev-Danilo Said Bardales Panduro
 
-![Consulta de reserva en LANCHA YA!](docs/consultar-reserva.png)
-
 ---
 
 ## Demo
@@ -167,3 +165,9 @@ Las reservas generan códigos `LY-XXXXX`. Salidas canceladas o zarpadas no acept
 
 - **Frontend (Vercel):** root `frontend` · env `VITE_API_URL=https://lanchayaiquitos.onrender.com/api`
 - **Backend (Render):** root `backend` · `npm install` / `npm start` · env `NODE_VERSION=22`
+
+---
+
+## Cap
+
+![Consulta de reserva en LANCHA YA!](docs/consultar-reserva.png)
